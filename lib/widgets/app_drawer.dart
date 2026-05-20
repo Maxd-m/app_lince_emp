@@ -1,3 +1,4 @@
+import 'package:app_lince_emp/screens/compras_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
@@ -42,19 +43,38 @@ class AppDrawer extends StatelessWidget {
           Obx(() {
             final user = authController.currentUser.value;
             if (user != null) {
-              return ListTile(
-                leading: const Icon(Icons.person),
-                title: const Text('Mi Perfil'),
-                subtitle: Text(
-                  user.email,
-                  style: const TextStyle(fontSize: 12),
-                ),
-                selected: currentRoute == 'profile',
-                onTap: () {
-                  Get.back();
-                  if (currentRoute != 'profile')
-                    Get.to(() => const ProfileScreen());
-                },
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.person),
+                    title: const Text('Mi Perfil'),
+                    subtitle: Text(
+                      user.email,
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    selected: currentRoute == 'profile',
+                    onTap: () {
+                      Get.back();
+                      if (currentRoute != 'profile')
+                        Get.to(() => const ProfileScreen());
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.history),
+                    title: const Text('Mis compras'),
+                    subtitle: const Text(
+                      'Historial de pedidos',
+                      style: TextStyle(fontSize: 12),
+                    ),
+                    selected: currentRoute == 'compras',
+                    onTap: () {
+                      Get.back();
+                      if (currentRoute != 'compras')
+                        Get.to(() => const ComprasScreen());
+                    },
+                  ),
+                ],
               );
             } else {
               return ListTile(
