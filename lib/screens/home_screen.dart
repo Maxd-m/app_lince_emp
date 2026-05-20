@@ -1,5 +1,7 @@
 // lib/screens/home_screen.dart
 
+import 'package:app_lince_emp/screens/products_screen.dart';
+import 'package:app_lince_emp/screens/vendors_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
@@ -11,6 +13,7 @@ import 'login_screen.dart';
 import 'profile_screen.dart';
 import '../api/product_api.dart'; // Solo usado para importar el mock
 import '../api/vendor_api.dart'; // Solo usado para importar el mock
+import '../widgets/app_drawer.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -56,97 +59,7 @@ class HomeScreen extends StatelessWidget {
       ),
 
       // === MENÚ LATERAL (HAMBURGUESA) ===
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(color: Colors.blueGrey),
-              child: Text(
-                'Menú',
-                style: TextStyle(color: Colors.white, fontSize: 24),
-              ),
-            ),
-            Obx(() {
-              final user = authController.currentUser.value;
-
-              if (user != null) {
-                // SI ESTÁ LOGUEADO -> Mostrar Perfil
-                return ListTile(
-                  leading: const Icon(Icons.person),
-                  title: const Text('Mi Perfil'),
-                  subtitle: Text(
-                    user.email,
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                  onTap: () {
-                    Get.back(); // Cierra el drawer (equivalente a Navigator.pop)
-                    Get.to(
-                      () => const ProfileScreen(),
-                    ); // Navega a la pantalla de perfil
-                  },
-                );
-              } else {
-                // SI NO ESTÁ LOGUEADO -> Mostrar Iniciar sesión
-                return ListTile(
-                  leading: const Icon(Icons.login),
-                  title: const Text('Iniciar sesión'),
-                  onTap: () {
-                    Get.back();
-                    Get.to(
-                      () => LoginScreen(),
-                    ); // Asegúrate de instanciar tu LoginScreen
-                  },
-                );
-              }
-            }),
-
-            // ===========================================
-            const Divider(), // Agregamos una línea divisoria por estética
-
-            ListTile(
-              leading: const Icon(Icons.shopping_bag),
-              title: const Text('Productos'),
-              onTap: () {
-                Get.back();
-                // TODO: Navegar a pantalla de productos
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.people),
-              title: const Text('Colaboradores'),
-              onTap: () {
-                Get.back();
-                // TODO: Navegar a pantalla de colaboradores
-              },
-            ),
-            // ListTile(
-            //   leading: const Icon(Icons.login),
-            //   title: const Text('Iniciar sesión'),
-            //   onTap: () {
-            //     Navigator.pushNamed(context, '/login'); // Cierra el drawer
-            //     // TODO: Navegar a pantalla de login
-            //   },
-            // ),
-            // ListTile(
-            //   leading: const Icon(Icons.shopping_bag),
-            //   title: const Text('Productos'),
-            //   onTap: () {
-            //     Navigator.pop(context);
-            //     // TODO: Navegar a pantalla de productos
-            //   },
-            // ),
-            // ListTile(
-            //   leading: const Icon(Icons.people),
-            //   title: const Text('Colaboradores'),
-            //   onTap: () {
-            //     Navigator.pop(context);
-            //     // TODO: Navegar a pantalla de colaboradores
-            //   },
-            // ),
-          ],
-        ),
-      ),
+      drawer: const AppDrawer(currentRoute: 'home'),
 
       body: SingleChildScrollView(
         child: Column(
@@ -190,6 +103,7 @@ class HomeScreen extends StatelessWidget {
                 child: OutlinedButton(
                   onPressed: () {
                     // TODO: Lógica de navegación a /productos
+                    Get.to(() => ProductsScreen());
                     // Navigator.pushNamed(context, '/productos');
                   },
                   style: OutlinedButton.styleFrom(

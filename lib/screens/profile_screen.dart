@@ -4,6 +4,7 @@ import 'package:app_lince_emp/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
+import '../widgets/app_drawer.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -19,49 +20,7 @@ class ProfileScreen extends StatelessWidget {
         backgroundColor: Colors.blueGrey,
       ),
       // === MENÚ LATERAL (HAMBURGUESA) ===
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(color: Colors.blueGrey),
-              child: Text(
-                'Menú',
-                style: TextStyle(color: Colors.white, fontSize: 24),
-              ),
-            ),
-
-            ListTile(
-              leading: const Icon(Icons.shopping_bag),
-              title: const Text('Home'),
-              onTap: () {
-                Get.off(() => const HomeScreen());
-                // TODO: Navegar a pantalla de productos
-              },
-            ),
-
-            // ===========================================
-            const Divider(), // Agregamos una línea divisoria por estética
-
-            ListTile(
-              leading: const Icon(Icons.shopping_bag),
-              title: const Text('Productos'),
-              onTap: () {
-                Get.back();
-                // TODO: Navegar a pantalla de productos
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.people),
-              title: const Text('Colaboradores'),
-              onTap: () {
-                Get.back();
-                // TODO: Navegar a pantalla de colaboradores
-              },
-            ),
-          ],
-        ),
-      ),
+      drawer: const AppDrawer(currentRoute: 'profile'),
 
       body: Center(
         child: Obx(() {
