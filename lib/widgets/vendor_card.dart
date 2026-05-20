@@ -1,6 +1,8 @@
 // lib/components/vendor_card.dart
 
+import 'package:app_lince_emp/screens/vendor_details_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../models/vendor_model.dart';
 
 class VendorCard extends StatelessWidget {
@@ -147,7 +149,15 @@ class VendorCard extends StatelessWidget {
 
                   // Botón "Ver perfil" (rounded-none btn-primary)
                   ElevatedButton(
-                    onPressed: onTap,
+                    onPressed:
+                        onTap ??
+                        () {
+                          Get.to(
+                            () => VendorDetailsScreen(),
+                            arguments: vendor.id,
+                          );
+                          // Misma lógica de navegación del InkWell
+                        },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).primaryColor,
                       foregroundColor: Colors.white,

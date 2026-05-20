@@ -1,6 +1,9 @@
 // lib/components/product_card.dart
 
+import 'package:app_lince_emp/screens/product_details_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import '../models/product_model.dart';
 
 class ProductCard extends StatelessWidget {
@@ -121,6 +124,10 @@ class ProductCard extends StatelessWidget {
                           onPressed:
                               onTap ??
                               () {
+                                Get.to(
+                                  () => ProductDetailsScreen(),
+                                  arguments: product.id,
+                                );
                                 // Misma lógica de navegación del InkWell
                               },
                           style: ElevatedButton.styleFrom(
