@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:app_lince_emp/screens/home_screen.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:app_lince_emp/screens/login_screen.dart';
 import 'package:get/get.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  try {
+    // 4. Carga el archivo .env de tus assets
+    await dotenv.load(fileName: ".env");
+    print("¡Archivo .env cargado con éxito!");
+  } catch (e) {
+    print("Error cargando el archivo .env: $e");
+  }
   runApp(const MyApp());
 }
 

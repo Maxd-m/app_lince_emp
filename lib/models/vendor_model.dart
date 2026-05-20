@@ -1,6 +1,5 @@
 // lib/models/vendor_model.dart
-
-import 'product_model.dart'; // Importamos Product y Review del archivo anterior
+import 'product_model.dart';
 
 class Vendor {
   final String id;
@@ -18,28 +17,35 @@ class Vendor {
     required this.description,
     required this.categories,
   });
+
+  factory Vendor.fromJson(Map<String, dynamic> json) {
+    return Vendor(
+      id: json['id']?.toString() ?? '',
+      name: json['nombre'] ?? 'Vendedor sin nombre',
+      image:
+          "https://bunchobagels.com/wp-content/uploads/2024/09/placeholder.jpg", // Default placeholder
+      rating: 4.5, // Valor por defecto ya que no viene en tu JSON actual
+      description:
+          json['carrera'] ??
+          'Sin descripción disponible', // Usamos la carrera como descripción
+      categories: [],
+    );
+  }
 }
 
-// Extendemos Vendor para la vista de detalle
+/// Clase extendida que incluye los detalles completos del vendedor
 class VendorDetail extends Vendor {
   final List<Product> products;
   final List<Review> reviews;
 
   VendorDetail({
-    required String id,
-    required String name,
-    required String image,
-    required double rating,
-    required String description,
-    required List<String> categories,
+    required super.id,
+    required super.name,
+    required super.image,
+    required super.rating,
+    required super.description,
+    required super.categories,
     required this.products,
     required this.reviews,
-  }) : super(
-         id: id,
-         name: name,
-         image: image,
-         rating: rating,
-         description: description,
-         categories: categories,
-       );
+  });
 }

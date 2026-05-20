@@ -22,6 +22,41 @@ class Product {
     required this.vendor,
     required this.reviews,
   });
+
+  factory Product.fromJson(Map<String, dynamic> json) {
+    // Mapeo de la lista de imágenes del backend
+    final listImagenes = json['imagenes'] as List? ?? [];
+    List<String> parsedImages = listImagenes
+        .map((img) => img['url_imagen'] as String)
+        .toList();
+
+    // Si el producto no tiene imágenes, agregamos un placeholder
+    if (parsedImages.isEmpty) {
+      parsedImages.add(
+        "https://bunchobagels.com/wp-content/uploads/2024/09/placeholder.jpg",
+      );
+    }
+
+    // Mapeo de reseñas
+    final listReviews = json['reviews'] as List? ?? [];
+    List<Review> parsedReviews = listReviews
+        .map((rev) => Review.fromJson(rev))
+        .toList();
+
+    return Product(
+      id: json['id']
+          .toString(), // Convertimos int a String para mantener tu modelo
+      name: json['nombre'] ?? '',
+      description: json['descripcion'] ?? '',
+      price:
+          double.tryParse(json['precio']?.toString() ?? '0') ??
+          0.0, // De String a double
+      stock: json['stock'] as int? ?? 0,
+      images: parsedImages,
+      vendor: Vendor.fromJson(json['vendedor'] ?? {}),
+      reviews: parsedReviews,
+    );
+  }
 }
 
 class Review {
@@ -40,4 +75,17 @@ class Review {
     required this.comment,
     required this.date,
   });
+
+  factory Review.fromJson(Map<String, dynamic> json) {
+    return Review(
+      id: json['id']?.toString() ?? '',
+      userName: json['user_name'] ?? 'Anónimo',
+      userAvatar:
+          json['user_avatar'] ??
+          "https://bunchobagels.com/wp-content/uploads/2024/09/placeholder.jpg",
+      rating: double.tryParse(json['rating']?.toString() ?? '5.0') ?? 5.0,
+      comment: json['comment'] ?? '',
+      date: json['created_at'] ?? '',
+    );
+  }
 }

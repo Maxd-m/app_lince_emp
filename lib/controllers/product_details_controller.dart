@@ -12,12 +12,11 @@ class ProductDetailsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Recuperamos el ID pasado por argumentos al navegar: Get.to(() => ..., arguments: product.id)
     final String productId = Get.arguments as String? ?? "";
     if (productId.isNotEmpty) {
       fetchProduct(productId);
     } else {
-      isLoading.value = false; // No hay ID
+      isLoading.value = false;
     }
   }
 
@@ -33,9 +32,6 @@ class ProductDetailsController extends GetxController {
 
   void addToCart() {
     if (product.value != null) {
-      // TODO: Añadir al CartController/Store
-
-      // Mostrar el "Toast" de éxito
       Get.snackbar(
         "¡Éxito!",
         "Artículo añadido con éxito al carrito",

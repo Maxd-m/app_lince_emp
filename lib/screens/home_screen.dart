@@ -5,14 +5,10 @@ import 'package:app_lince_emp/screens/vendors_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
+import '../controllers/product_controller.dart'; // <-- AÑADIDO: Importamos el controlador de productos
 import '../widgets/product_card.dart';
 import '../widgets/vendor_card.dart';
-import '../models/product_model.dart';
 import '../models/vendor_model.dart';
-import 'login_screen.dart';
-import 'profile_screen.dart';
-import '../api/product_api.dart'; // Solo usado para importar el mock
-import '../api/vendor_api.dart'; // Solo usado para importar el mock
 import '../widgets/app_drawer.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -20,16 +16,13 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Inyectamos el controlador. Usamos Get.put para asegurarnos de que exista.
+    // Inyectamos los controladores
     final AuthController authController = Get.put(AuthController());
+    final ProductController productController = Get.put(
+      ProductController(),
+    ); // <-- Instanciamos el controlador
 
-    // Tomamos datos falsos de nuestras APIs para llenar las secciones
-    // En un caso real, usarías un FutureBuilder, Bloc, Provider o GetX.
-    final List<Product> featuredProducts = ProductApi.mockProducts
-        .take(4)
-        .toList();
-
-    // Generamos una lista falsa de vendedores basada en tu mock
+    // Vendedores estáticos (mock) ya que no hay endpoint
     final List<Vendor> featuredVendors = List.generate(
       4,
       (index) => Vendor(
@@ -44,7 +37,6 @@ class HomeScreen extends StatelessWidget {
     );
 
     return Scaffold(
-      // === NAVBAR PLACEHOLDER ===
       appBar: AppBar(
         title: const Text("Lince Emp"),
         backgroundColor: Colors.blueGrey,
@@ -52,20 +44,16 @@ class HomeScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.shopping_cart),
             onPressed: () {
-              // TODO: Implementar navegación al carrito o mostrar resumen
+              // TODO: Implementar navegación al carrito
             },
           ),
         ],
       ),
-
-      // === MENÚ LATERAL (HAMBURGUESA) ===
       drawer: const AppDrawer(currentRoute: 'home'),
-
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // === PRODUCTOS DESTACADOS ===
             const Padding(
               padding: EdgeInsets.fromLTRB(20, 40, 20, 20),
               child: Text(
@@ -74,26 +62,40 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
 
-            // Grid de Productos (2 columnas)
+            // === AQUI USAMOS Obx PARA ESCUCHAR EL API ===
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: GridView.builder(
-                shrinkWrap:
-                    true, // Importante cuando está dentro de un SingleChildScrollView
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount:
-                      1, // Cambiamos a 1 columna para que sea más ancha
-                  childAspectRatio:
-                      0.65, // Ajustamos el ratio para que no sea tan alta
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                ),
-                itemCount: featuredProducts.length,
-                itemBuilder: (context, index) {
-                  return ProductCard(product: featuredProducts[index]);
-                },
-              ),
+              child: Obx(() {
+                if (productController.isLoading.value) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                // Tomamos los primeros 4 productos del API real
+                final featuredProducts = productController.allProducts
+                    .take(4)
+                    .toList();
+
+                if (featuredProducts.isEmpty) {
+                  return const Center(
+                    child: Text("No se encontraron productos."),
+                  );
+                }
+
+                return GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 1,
+                    childAspectRatio: 0.65,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                  ),
+                  itemCount: featuredProducts.length,
+                  itemBuilder: (context, index) {
+                    return ProductCard(product: featuredProducts[index]);
+                  },
+                );
+              }),
             ),
 
             // Botón "Ver mas"
@@ -102,15 +104,11 @@ class HomeScreen extends StatelessWidget {
               child: Center(
                 child: OutlinedButton(
                   onPressed: () {
-                    // TODO: Lógica de navegación a /productos
                     Get.to(() => ProductsScreen());
-                    // Navigator.pushNamed(context, '/productos');
                   },
                   style: OutlinedButton.styleFrom(
                     side: BorderSide(color: Colors.green.shade800, width: 2),
-                    backgroundColor: Colors
-                        .green
-                        .shade50, // bg-green-800 con opacidad emulada
+                    backgroundColor: Colors.green.shade50,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 40,
                       vertical: 12,
@@ -139,7 +137,6 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
 
-            // Lista de Vendedores
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: ListView.separated(
@@ -154,7 +151,7 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
 
-            // === DIVIDER INFORMACIÓN ADICIONAL ===
+            // === DIVIDER E INFORMACIÓN ADICIONAL ===
             Padding(
               padding: const EdgeInsets.symmetric(
                 vertical: 40.0,
@@ -183,9 +180,6 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
 
-            // === GRID DE TARJETAS DE INFORMACIÓN ===
-            // Usamos Wrap para que en pantallas grandes se pongan una al lado de otra
-            // y en celulares se apilen hacia abajo automáticamente.
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Wrap(
@@ -211,7 +205,6 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
             ),
-
             const SizedBox(height: 40),
           ],
         ),
@@ -219,19 +212,16 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // Helper para crear las tarjetas laterales de "Información adicional"
   Widget _buildInfoCard(
     BuildContext context, {
     required String title,
     required String description,
     required String imageUrl,
   }) {
-    // LayoutBuilder ayuda a adaptar el tamaño
-    // Limitamos el ancho para que en pantallas web quepan 2 en la misma fila
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 500),
       child: Card(
-        color: Colors.grey.shade200, // bg-base-300
+        color: Colors.grey.shade200,
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         clipBehavior: Clip.antiAlias,
@@ -239,12 +229,10 @@ class HomeScreen extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Imagen lateral
               SizedBox(
                 width: 120,
                 child: Image.network(imageUrl, fit: BoxFit.cover),
               ),
-              // Contenido
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),

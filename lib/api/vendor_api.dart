@@ -1,12 +1,11 @@
 // lib/api/vendor_api.dart
 
 import '../models/vendor_model.dart';
-import '../models/product_model.dart'; // Necesario para la lista de productos
+import '../models/product_model.dart';
 
 class VendorApi {
   static Future<VendorDetail?> fetchVendorById(String id) async {
     return Future.delayed(const Duration(milliseconds: 800), () {
-      // Mock de datos simulando la BD
       return VendorDetail(
         id: id,
         name: "Tech & Travel",
@@ -24,7 +23,6 @@ class VendorApi {
             price: 850.5,
             stock: 24,
             images: ["https://placehold.co/400x300/png"],
-            // Pasamos un Vendor base para el producto
             vendor: Vendor(
               id: id,
               name: "Tech & Travel",
@@ -35,14 +33,13 @@ class VendorApi {
             ),
             reviews: [],
           ),
-          // Puedes agregar el segundo producto mock aquí...
         ],
         reviews: [
           Review(
             id: "rv1",
             userName: "Ana Gómez",
             userAvatar: "https://placehold.co/100x100/png",
-            rating: 5,
+            rating: 5.0, // <-- CAMBIO: De 5 a 5.0
             comment:
                 "El vendedor envió todo muy rápido y súper bien empaquetado. Totalmente recomendado.",
             date: "2024-05-01",
@@ -51,7 +48,7 @@ class VendorApi {
             id: "rv2",
             userName: "Carlos Ruiz",
             userAvatar: "https://placehold.co/100x100/png",
-            rating: 4,
+            rating: 4.0, // <-- CAMBIO: De 4 a 4.0
             comment:
                 "El vendedor envió todo muy rápido y súper bien empaquetado. Totalmente recomendado.",
             date: "2024-05-01",

@@ -1,58 +1,90 @@
 // lib/api/product_api.dart
 
+import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart'; // Asegúrate de tener este paquete o cambia el acceso a tu .env
 import '../models/product_model.dart';
-import '../models/vendor_model.dart';
 
 class ProductApi {
-  // Base de datos simulada basada en tu wireframe
-  static final List<Product> mockProducts = [
-    Product(
-      id: "1",
-      name: "Mochila Urban Explorer",
-      description:
-          "Mochila resistente al agua ideal para estudiantes y viajeros. Cuenta con múltiples compartimentos, espacio para laptop de 15 pulgadas y diseño ergonómico para mayor comodidad durante todo el día.",
-      price: 850.5,
-      stock: 24,
-      images: [
-        "https://bunchobagels.com/wp-content/uploads/2024/09/placeholder.jpg",
-        "https://bunchobagels.com/wp-content/uploads/2024/09/placeholder.jpg",
-      ],
-      vendor: Vendor(
-        id: "v1",
-        name: "Tech & Travel",
-        image:
-            "https://bunchobagels.com/wp-content/uploads/2024/09/placeholder.jpg",
-        rating: 4.8,
-        description:
-            "Especialistas en accesorios para el día a día y viajes. Calidad garantizada.",
-        categories: ["Viajes", "Accesorios", "Mochilas", "Impermeable"],
-      ),
-      reviews: [
-        Review(
-          id: "r1",
-          userName: "Ana Gómez",
-          userAvatar:
-              "https://bunchobagels.com/wp-content/uploads/2024/09/placeholder.jpg",
-          rating: 5,
-          comment:
-              "Excelente calidad. Los cierres se sienten muy resistentes y cabe todo lo de la universidad.",
-          date: "2024-04-15",
-        ),
-      ],
+  // Inicializamos Dio con la configuración base obtiniéndola de tu .env
+  static final Dio _dio = Dio(
+    BaseOptions(
+      baseUrl: dotenv.env['API_URL'] ?? 'http://localhost:8000/api',
+      connectTimeout: const Duration(seconds: 8),
+      receiveTimeout: const Duration(seconds: 5),
     ),
-    // Puedes agregar los productos 2 y 3 aquí de la misma forma...
-  ];
+  );
 
-  /// Simula el fetch de un producto por su ID
-  /// Retorna un Future que resuelve con el Producto o null si no existe
+  /// Obtiene la lista de todos los productos desde el endpoint GET /productos
+  //   static Future<List<Product>> fetchAllProducts() async {
+  //     try {
+  //       print(
+  //         "******************************API Base URL: ${dotenv.env['API_URL']}",
+  //       ); // Debug para verificar la URL;
+
+  //       final response = await _dio.get('/productos');
+
+  //       if (response.statusCode == 200 && response.data['success'] == true) {
+  //         final List<dynamic> productosJson = response.data['data'];
+  //         return productosJson.map((json) => Product.fromJson(json)).toList();
+  //       }
+  //       return [];
+  //     } catch (e) {
+  //       print("Error en fetchAllProducts: $e");
+  //       return [];
+  //     }
+  //   }
+
+  // // lib/api/product_api.dart
+
+  static Future<List<Product>> fetchAllProducts() async {
+    try {
+      print(
+        "Iniciando petición a: ${_dio.options.baseUrl}/productos",
+      ); // <-- DEBUG 1
+      final response = await _dio.get('/productos');
+
+      print(
+        "Respuesta recibida con status: ${response.statusCode}",
+      ); // <-- DEBUG 2
+
+      if (response.statusCode == 200 && response.data['success'] == true) {
+        final List<dynamic> productosJson = response.data['data'];
+        return productosJson.map((json) => Product.fromJson(json)).toList();
+      }
+      return [];
+    } catch (e, stackTrace) {
+      // <-- CAMBIO AQUÍ: Agrega stackTrace
+      print("--- ERROR EN FETCH ALL PRODUCTS ---");
+      print("Mensaje de error: $e");
+      print(
+        "Ruta del error (StackTrace):\n$stackTrace",
+      ); // <-- Esto te dirá la línea exacta
+      print("-----------------------------------");
+      return [];
+    }
+  }
+
+  /// Realiza el fetch de un producto por su ID
   static Future<Product?> fetchProductById(String id) async {
-    return Future.delayed(const Duration(milliseconds: 800), () {
+    try {
+      // Intentamos obtener el detalle directamente si tu backend soporta /productos/{id}
+      final response = await _dio.get('/productos/$id');
+
+      if (response.statusCode == 200 && response.data['success'] == true) {
+        return Product.fromJson(response.data['data']);
+      }
+      return null;
+    } catch (e) {
+      print(
+        "Error en fetchProductById: $e. Aplicando fallback de filtrado local...",
+      );
+      // Fallback: Si el endpoint por ID no existe aún, traemos todos y filtramos en memoria
+      final todos = await fetchAllProducts();
       try {
-        // Busca el primer producto que coincida, si no hay arroja un error que capturamos
-        return mockProducts.firstWhere((p) => p.id == id);
-      } catch (e) {
+        return todos.firstWhere((p) => p.id == id);
+      } catch (_) {
         return null;
       }
-    });
+    }
   }
 }

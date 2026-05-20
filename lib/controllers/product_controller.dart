@@ -2,12 +2,12 @@
 
 import 'package:get/get.dart';
 import '../models/product_model.dart';
-import '../api/product_api.dart'; // Tu API mock
+import '../api/product_api.dart';
 
 class ProductController extends GetxController {
-  // Lista original y lista filtrada (observables)
   final RxList<Product> allProducts = <Product>[].obs;
   final RxList<Product> filteredProducts = <Product>[].obs;
+  final RxBool isLoading = false.obs; // Loader reactivo
 
   @override
   void onInit() {
@@ -15,13 +15,19 @@ class ProductController extends GetxController {
     _loadProducts();
   }
 
-  void _loadProducts() {
-    // Aquí cargarías los datos de tu backend. Por ahora usamos el mock.
-    allProducts.value = ProductApi.mockProducts;
-    filteredProducts.value = allProducts;
+  Future<void> _loadProducts() async {
+    try {
+      isLoading.value = true;
+      final productos = await ProductApi.fetchAllProducts();
+      allProducts.value = productos;
+      filteredProducts.value = productos;
+    } catch (e) {
+      Get.snackbar("Error", "No se pudo conectar con el servidor.");
+    } finally {
+      isLoading.value = false;
+    }
   }
 
-  // Función para buscar productos
   void search(String query) {
     if (query.isEmpty) {
       filteredProducts.value = allProducts;
@@ -32,9 +38,7 @@ class ProductController extends GetxController {
     }
   }
 
-  // Función para el botón de filtro (Placeholder)
   void openFilterModal() {
-    // TODO: Implementar un BottomSheet con opciones avanzadas (precio, categoría)
     Get.snackbar("Filtros", "Próximamente: Opciones de filtrado avanzado");
   }
 }

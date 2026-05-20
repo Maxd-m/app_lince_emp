@@ -20,6 +20,12 @@ class ProductCard extends StatelessWidget {
         ? product.images.first
         : "https://placehold.co/400x300/png";
 
+    // Cálculo de estrellas promedio: Movemos el cálculo aquí, fuera del árbol de widgets.
+    final averageRating = product.reviews.isNotEmpty
+        ? (product.reviews.map((r) => r.rating).reduce((a, b) => a + b) /
+              product.reviews.length)
+        : 0.0;
+
     return Card(
       elevation: 4,
       shadowColor: Colors.black26,
@@ -30,6 +36,8 @@ class ProductCard extends StatelessWidget {
         onTap:
             onTap ??
             () {
+              Get.to(() => ProductDetailsScreen(), arguments: product.id);
+
               // TODO: Agrega tu lógica de navegación aquí
               // Ejemplo: Navigator.pushNamed(context, '/product/${product.id}');
             },
@@ -76,15 +84,16 @@ class ProductCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        // Rating de estrellas fijo (emulando la interfaz de DaisyUI)
+                        const SizedBox(width: 4),
+                        // Display de estrellas basado en el rating promedio
                         Row(
                           children: List.generate(5, (index) {
                             return Icon(
                               Icons.star,
                               size: 16,
-                              color: index < 3
-                                  ? Colors.green
+                              color: index < averageRating.round()
+                                  ? Colors
+                                        .orange // Usamos naranja para consistencia con ProductDetailsScreen
                                   : Colors.grey[300],
                             );
                           }),
@@ -92,11 +101,11 @@ class ProductCard extends StatelessWidget {
                       ],
                     ),
 
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 8),
 
                     // Texto de relleno
-                    const Text(
-                      "is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the ...",
+                    Text(
+                      product.description,
                       style: TextStyle(color: Colors.black54),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -128,8 +137,7 @@ class ProductCard extends StatelessWidget {
                                   () => ProductDetailsScreen(),
                                   arguments: product.id,
                                 );
-                                // Misma lógica de navegación del InkWell
-                              },
+                              }, // Misma lógica de navegación del InkWell
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Theme.of(context).primaryColor,
                             foregroundColor: Colors.white,
