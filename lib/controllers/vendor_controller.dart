@@ -2,10 +2,12 @@
 
 import 'package:get/get.dart';
 import '../models/vendor_model.dart';
+import '../api/vendor_api.dart';
 
 class VendorController extends GetxController {
   final RxList<Vendor> allVendors = <Vendor>[].obs;
   final RxList<Vendor> filteredVendors = <Vendor>[].obs;
+  final RxBool isLoading = true.obs; // Agregamos un estado de carga
 
   @override
   void onInit() {
@@ -13,24 +15,18 @@ class VendorController extends GetxController {
     _loadVendors();
   }
 
-  void _loadVendors() {
-    // Usamos el mismo generador de mock que tenías en el home
-    final mocks = List.generate(
-      10, // Generamos 10 vendedores para que haya lista
-      (index) => Vendor(
-        id: "v$index",
-        name: index % 2 == 0
-            ? "Tech Vendedor $index"
-            : "Vendedor Destacado $index",
-        image: "https://placehold.co/150x150/png",
-        rating: 4.5,
-        description:
-            "Excelente servicio y calidad en cada uno de nuestros productos.",
-        categories: ["Tecnología", "Accesorios"],
-      ),
-    );
-    allVendors.value = mocks;
-    filteredVendors.value = allVendors;
+  Future<void> _loadVendors() async {
+    isLoading.value = true;
+    try {
+      // Llamamos a la API real
+      final vendors = await VendorApi.fetchVendors();
+      allVendors.value = vendors;
+      filteredVendors.value = allVendors;
+    } catch (e) {
+      print("Error cargando vendedores: $e");
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   void search(String query) {

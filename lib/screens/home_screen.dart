@@ -1,5 +1,6 @@
 // lib/screens/home_screen.dart
 
+import 'package:app_lince_emp/controllers/vendor_controller.dart';
 import 'package:app_lince_emp/screens/products_screen.dart';
 import 'package:app_lince_emp/screens/vendors_screen.dart';
 import 'package:flutter/material.dart';
@@ -18,23 +19,10 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // Inyectamos los controladores
     final AuthController authController = Get.put(AuthController());
-    final ProductController productController = Get.put(
-      ProductController(),
-    ); // <-- Instanciamos el controlador
+    final ProductController productController = Get.put(ProductController());
 
-    // Vendedores estáticos (mock) ya que no hay endpoint
-    final List<Vendor> featuredVendors = List.generate(
-      4,
-      (index) => Vendor(
-        id: "v$index",
-        name: "Vendedor Destacado $index",
-        image: "https://placehold.co/150x150/png",
-        rating: 4.5,
-        description:
-            "Excelente servicio y calidad en cada uno de nuestros productos.",
-        categories: ["Tecnología", "Accesorios"],
-      ),
-    );
+    // --> AÑADE EL CONTROLADOR DE VENDEDORES:
+    final VendorController vendorController = Get.put(VendorController());
 
     return Scaffold(
       appBar: AppBar(
@@ -139,16 +127,31 @@ class HomeScreen extends StatelessWidget {
 
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: featuredVendors.length,
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: 16),
-                itemBuilder: (context, index) {
-                  return VendorCard(vendor: featuredVendors[index]);
-                },
-              ),
+              child: Obx(() {
+                if (vendorController.isLoading.value) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                // Tomamos un máximo de 4 vendedores para destacar
+                final featured = vendorController.allVendors.take(4).toList();
+
+                if (featured.isEmpty) {
+                  return const Center(
+                    child: Text("Aún no hay colaboradores destacados."),
+                  );
+                }
+
+                return ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: featured.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 16),
+                  itemBuilder: (context, index) {
+                    return VendorCard(vendor: featured[index]);
+                  },
+                );
+              }),
             ),
 
             // === DIVIDER E INFORMACIÓN ADICIONAL ===

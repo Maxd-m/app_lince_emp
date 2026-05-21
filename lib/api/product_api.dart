@@ -14,28 +14,6 @@ class ProductApi {
     ),
   );
 
-  /// Obtiene la lista de todos los productos desde el endpoint GET /productos
-  //   static Future<List<Product>> fetchAllProducts() async {
-  //     try {
-  //       print(
-  //         "******************************API Base URL: ${dotenv.env['API_URL']}",
-  //       ); // Debug para verificar la URL;
-
-  //       final response = await _dio.get('/productos');
-
-  //       if (response.statusCode == 200 && response.data['success'] == true) {
-  //         final List<dynamic> productosJson = response.data['data'];
-  //         return productosJson.map((json) => Product.fromJson(json)).toList();
-  //       }
-  //       return [];
-  //     } catch (e) {
-  //       print("Error en fetchAllProducts: $e");
-  //       return [];
-  //     }
-  //   }
-
-  // // lib/api/product_api.dart
-
   static Future<List<Product>> fetchAllProducts() async {
     try {
       print(

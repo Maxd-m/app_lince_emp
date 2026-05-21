@@ -119,7 +119,7 @@ class VendorDetailsScreen extends StatelessWidget {
               const SizedBox(height: 12),
               SizedBox(
                 height:
-                    320, // Altura fija para que el ListView horizontal funcione
+                    380, // Altura fija para que el ListView horizontal funcione
                 child: ListView.separated(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   scrollDirection: Axis.horizontal, // Scroll Horizontal

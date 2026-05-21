@@ -62,15 +62,22 @@ class VendorsScreen extends StatelessWidget {
             ),
           ),
 
-          // === LISTA DE VENDEDORES ===
+          // En tu vendors_screen.dart
           Expanded(
             child: Obx(() {
+              // 1. Mostrar loading mientras espera la API
+              if (controller.isLoading.value) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              // 2. Mostrar mensaje de vacío solo si terminó de cargar y no hay datos
               if (controller.filteredVendors.isEmpty) {
                 return const Center(
                   child: Text("No se encontraron colaboradores."),
                 );
               }
 
+              // 3. Mostrar la lista real
               return ListView.separated(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -85,6 +92,30 @@ class VendorsScreen extends StatelessWidget {
               );
             }),
           ),
+
+          // === LISTA DE VENDEDORES ===
+          // Expanded(
+          //   child: Obx(() {
+          //     if (controller.filteredVendors.isEmpty) {
+          //       return const Center(
+          //         child: Text("No se encontraron colaboradores."),
+          //       );
+          //     }
+
+          //     return ListView.separated(
+          //       padding: const EdgeInsets.symmetric(
+          //         horizontal: 16,
+          //         vertical: 8,
+          //       ),
+          //       itemCount: controller.filteredVendors.length,
+          //       separatorBuilder: (context, index) =>
+          //           const SizedBox(height: 16),
+          //       itemBuilder: (context, index) {
+          //         return VendorCard(vendor: controller.filteredVendors[index]);
+          //       },
+          //     );
+          //   }),
+          // ),
         ],
       ),
     );
