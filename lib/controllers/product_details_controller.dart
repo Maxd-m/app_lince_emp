@@ -4,8 +4,10 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import '../models/product_model.dart';
 import '../api/product_api.dart';
+import 'cart_controller.dart';
 
 class ProductDetailsController extends GetxController {
+  final CartController cartController = Get.find<CartController>();
   final RxBool isLoading = true.obs;
   final Rxn<Product> product = Rxn<Product>();
 
@@ -32,6 +34,8 @@ class ProductDetailsController extends GetxController {
 
   void addToCart() {
     if (product.value != null) {
+      cartController.addProduct(product.value!);
+
       Get.snackbar(
         "¡Éxito!",
         "Artículo añadido con éxito al carrito",

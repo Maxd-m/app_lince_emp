@@ -2,11 +2,13 @@
 
 import 'package:app_lince_emp/controllers/vendor_controller.dart';
 import 'package:app_lince_emp/screens/products_screen.dart';
+import 'package:app_lince_emp/screens/cart_screen.dart';
 import 'package:app_lince_emp/screens/vendors_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/product_controller.dart'; // <-- AÑADIDO: Importamos el controlador de productos
+import '../controllers/cart_controller.dart';
 import '../widgets/product_card.dart';
 import '../widgets/vendor_card.dart';
 import '../models/vendor_model.dart';
@@ -20,6 +22,10 @@ class HomeScreen extends StatelessWidget {
     // Inyectamos los controladores
     final AuthController authController = Get.put(AuthController());
     final ProductController productController = Get.put(ProductController());
+    final CartController cartController = Get.put(
+      CartController(),
+      permanent: true,
+    );
 
     // --> AÑADE EL CONTROLADOR DE VENDEDORES:
     final VendorController vendorController = Get.put(VendorController());
@@ -29,11 +35,41 @@ class HomeScreen extends StatelessWidget {
         title: const Text("Lince Emp"),
         backgroundColor: Colors.blueGrey,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.shopping_cart),
-            onPressed: () {
-              // TODO: Implementar navegación al carrito
-            },
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.shopping_cart),
+                onPressed: () => Get.to(() => CartScreen()),
+              ),
+              Positioned(
+                right: 8,
+                top: 8,
+                child: Obx(
+                  () => cartController.itemCount > 0
+                      ? Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          child: Text(
+                            '${cartController.itemCount}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                ),
+              ),
+            ],
           ),
         ],
       ),
