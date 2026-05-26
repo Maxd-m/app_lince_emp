@@ -1,11 +1,21 @@
 // lib/api/auth_api.dart
 
+import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthApi {
   // Inicializamos el objeto de Google SignIn solicitando email y perfil básico
   static final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: ['email', 'profile'],
+  );
+
+  static final Dio _dio = Dio(
+    BaseOptions(
+      baseUrl: dotenv.env['API_URL'] ?? 'http://localhost:8000/api',
+      connectTimeout: const Duration(seconds: 8),
+      receiveTimeout: const Duration(seconds: 5),
+    ),
   );
 
   /// Abre el modal nativo de Google y retorna el usuario autenticado
@@ -19,6 +29,25 @@ class AuthApi {
       print("Error en Google Sign-In: $error");
       return null;
     }
+  }
+
+  /// Inicia sesión con correo y contraseña
+  static Future<Map<String, dynamic>?> loginWithEmail(
+    String correo,
+    String password,
+  ) async {
+    try {
+      final response = await _dio.post(
+        '/login',
+        data: {'correo': correo, 'password': password},
+      );
+      if (response.statusCode == 200 && response.data['success'] == true) {
+        return response.data['data'];
+      }
+    } catch (error) {
+      print("Error en login con email: $error");
+    }
+    return null;
   }
 
   /// Cierra la sesión actual

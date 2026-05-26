@@ -63,16 +63,16 @@ class Review {
   final String id;
   final String userName;
   final String userAvatar;
-  final double rating;
-  final String comment;
+  final double calificacion;
+  final String comentario;
   final String date;
 
   Review({
     required this.id,
     required this.userName,
     required this.userAvatar,
-    required this.rating,
-    required this.comment,
+    required this.calificacion,
+    required this.comentario,
     required this.date,
   });
 
@@ -83,8 +83,9 @@ class Review {
       userAvatar:
           json['user_avatar'] ??
           "https://bunchobagels.com/wp-content/uploads/2024/09/placeholder.jpg",
-      rating: double.tryParse(json['rating']?.toString() ?? '5.0') ?? 5.0,
-      comment: json['comment'] ?? '',
+      calificacion:
+          double.tryParse(json['calificacion']?.toString() ?? '0.0') ?? 0.0,
+      comentario: json['comentario'] ?? '',
       date: json['created_at'] ?? '',
     );
   }

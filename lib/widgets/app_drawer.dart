@@ -41,8 +41,7 @@ class AppDrawer extends StatelessWidget {
           ),
 
           Obx(() {
-            final user = authController.currentUser.value;
-            if (user != null) {
+            if (authController.isLoggedIn) {
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -50,7 +49,7 @@ class AppDrawer extends StatelessWidget {
                     leading: const Icon(Icons.person),
                     title: const Text('Mi Perfil'),
                     subtitle: Text(
-                      user.email,
+                      authController.displayEmail,
                       style: const TextStyle(fontSize: 12),
                     ),
                     selected: currentRoute == 'profile',

@@ -102,8 +102,8 @@ class VendorApi {
               userName: anonimo ? "Anónimo" : (cliente?['nombre'] ?? "Usuario"),
               userAvatar:
                   "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png",
-              rating: (r['calificacion'] ?? 5).toDouble(),
-              comment: r['comentario'] ?? "",
+              calificacion: (r['calificacion'] ?? 5).toDouble(),
+              comentario: r['comentario'] ?? "",
               date: r['created_at'] ?? "",
             );
           }).toList();
@@ -116,7 +116,7 @@ class VendorApi {
       // 4. Calcular el promedio de calificación
       double rating = 5.0;
       if (reviews.isNotEmpty) {
-        double sum = reviews.fold(0, (prev, curr) => prev + curr.rating);
+        double sum = reviews.fold(0, (prev, curr) => prev + curr.calificacion);
         // Redondeamos y dejamos un decimal como máximo si lo deseas
         rating = sum / reviews.length;
       }

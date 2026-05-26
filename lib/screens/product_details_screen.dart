@@ -37,7 +37,9 @@ class ProductDetailsScreen extends StatelessWidget {
 
         // Cálculo de estrellas promedio
         final averageRating = product.reviews.isNotEmpty
-            ? (product.reviews.map((r) => r.rating).reduce((a, b) => a + b) /
+            ? (product.reviews
+                          .map((r) => r.calificacion)
+                          .reduce((a, b) => a + b) /
                       product.reviews.length)
                   .toStringAsFixed(1)
             : "0";

@@ -10,6 +10,9 @@ class ReviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(
+      "COntenido review: ${review.comentario}, calificacion: ${review.calificacion}",
+    ); // Debugging
     return Card(
       elevation: 1,
       color: Colors.grey.shade50,
@@ -58,7 +61,7 @@ class ReviewCard extends StatelessWidget {
                     return Icon(
                       Icons.star,
                       size: 16,
-                      color: index < review.rating
+                      color: index < review.calificacion
                           ? Colors.orange
                           : Colors.grey.shade300,
                     );
@@ -69,7 +72,7 @@ class ReviewCard extends StatelessWidget {
             const SizedBox(height: 12),
             // Comentario
             Text(
-              review.comment,
+              review.comentario,
               style: TextStyle(color: Colors.grey.shade800, height: 1.4),
             ),
           ],

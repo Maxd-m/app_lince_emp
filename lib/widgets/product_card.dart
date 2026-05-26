@@ -22,7 +22,7 @@ class ProductCard extends StatelessWidget {
 
     // Cálculo de estrellas promedio: Movemos el cálculo aquí, fuera del árbol de widgets.
     final averageRating = product.reviews.isNotEmpty
-        ? (product.reviews.map((r) => r.rating).reduce((a, b) => a + b) /
+        ? (product.reviews.map((r) => r.calificacion).reduce((a, b) => a + b) /
               product.reviews.length)
         : 0.0;
 

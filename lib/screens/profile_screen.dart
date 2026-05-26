@@ -24,10 +24,7 @@ class ProfileScreen extends StatelessWidget {
 
       body: Center(
         child: Obx(() {
-          final user = authController.currentUser.value;
-
-          // Por seguridad, si el usuario es nulo, mostramos un mensaje
-          if (user == null) {
+          if (!authController.isLoggedIn) {
             return const Text('No has iniciado sesión.');
           }
 
@@ -36,16 +33,16 @@ class ProfileScreen extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 60,
-                backgroundImage: user.photoUrl != null
-                    ? NetworkImage(user.photoUrl!)
+                backgroundImage: authController.displayPhoto != null
+                    ? NetworkImage(authController.displayPhoto!)
                     : null,
-                child: user.photoUrl == null
+                child: authController.displayPhoto == null
                     ? const Icon(Icons.person, size: 60)
                     : null,
               ),
               const SizedBox(height: 20),
               Text(
-                user.displayName ?? 'Usuario',
+                authController.displayName,
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -53,9 +50,21 @@ class ProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                user.email,
+                authController.displayEmail,
                 style: TextStyle(fontSize: 16, color: Colors.grey[700]),
               ),
+              if (authController.roles.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 8,
+                  children: authController.roles.map((rol) {
+                    return Chip(
+                      label: Text(rol['nombre'].toString().toUpperCase()),
+                      backgroundColor: Colors.blueGrey.shade100,
+                    );
+                  }).toList(),
+                ),
+              ],
               const SizedBox(height: 40),
               ElevatedButton.icon(
                 onPressed: () async {
