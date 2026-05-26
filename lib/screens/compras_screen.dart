@@ -45,14 +45,18 @@ class ComprasScreen extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 subtitle: Text(
-                  "Fecha: ${purchase.date.day}/${purchase.date.month}/${purchase.date.year} - \$${purchase.total.toStringAsFixed(2)}",
+                  "Lugar: ${purchase.lugar}\nFecha: ${purchase.date.day}/${purchase.date.month}/${purchase.date.year} - \$${purchase.total.toStringAsFixed(2)}",
+                  style: const TextStyle(fontSize: 12),
                 ),
+                // isThreeLine: true,
                 trailing: Chip(
                   label: Text(
-                    purchase.status,
+                    purchase.status.toUpperCase(),
                     style: const TextStyle(fontSize: 10, color: Colors.white),
                   ),
-                  backgroundColor: purchase.status == "Entregado"
+                  backgroundColor:
+                      purchase.status.toLowerCase() == "confirmada" ||
+                          purchase.status.toLowerCase() == "entregado"
                       ? Colors.green
                       : Colors.orange,
                 ),

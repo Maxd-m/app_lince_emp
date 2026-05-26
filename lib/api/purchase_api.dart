@@ -1,45 +1,44 @@
+// lib/api/purchase_api.dart
+
+import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:get/get.dart' hide Response;
+import '../controllers/auth_controller.dart';
 import '../models/purchase_model.dart';
 
 class PurchaseApi {
-  static final List<Purchase> mockPurchases = [
-    Purchase(
-      id: "ORD-7721",
-      date: DateTime.now().subtract(const Duration(days: 2)),
-      total: 1701.0,
-      status: "Entregado",
-      items: [
-        PurchaseItem(
-          productId: "1",
-          productName: "Mochila Urban Explorer",
-          price: 850.5,
-          quantity: 2,
-          imageUrl:
-              "https://bunchobagels.com/wp-content/uploads/2024/09/placeholder.jpg",
-        ),
-      ],
-    ),
-    Purchase(
-      id: "ORD-8842",
-      date: DateTime.now().subtract(const Duration(days: 10)),
-      total: 450.0,
-      status: "En camino",
-      items: [
-        PurchaseItem(
-          productId: "2",
-          productName: "Termo Acero Inoxidable",
-          price: 450.0,
-          quantity: 1,
-          imageUrl:
-              "https://bunchobagels.com/wp-content/uploads/2024/09/placeholder.jpg",
-        ),
-      ],
-    ),
-  ];
+  static final Dio _dio =
+      Dio(
+          BaseOptions(
+            baseUrl: dotenv.env['API_URL'] ?? 'http://localhost:8000/api',
+            connectTimeout: const Duration(seconds: 8),
+            receiveTimeout: const Duration(seconds: 5),
+          ),
+        )
+        ..interceptors.add(
+          InterceptorsWrapper(
+            onRequest: (options, handler) {
+              final authController = Get.find<AuthController>();
+              final token = authController.token.value;
+              if (token != null) {
+                options.headers['Authorization'] = 'Bearer $token';
+              }
+              return handler.next(options);
+            },
+          ),
+        );
 
   static Future<List<Purchase>> fetchPurchases() async {
-    return Future.delayed(
-      const Duration(milliseconds: 1000),
-      () => mockPurchases,
-    );
+    try {
+      final response = await _dio.get('/mis-compras');
+      if (response.statusCode == 200 && response.data['success'] == true) {
+        final List<dynamic> data = response.data['data'];
+        return data.map((json) => Purchase.fromJson(json)).toList();
+      }
+      return [];
+    } catch (e) {
+      print("Error al obtener compras: $e");
+      return [];
+    }
   }
 }
