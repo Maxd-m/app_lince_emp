@@ -50,6 +50,38 @@ class AuthApi {
     return null;
   }
 
+  /// Registra un nuevo usuario
+  static Future<Map<String, dynamic>?> register({
+    required String nombre,
+    required String correo,
+    required String password,
+    required String passwordConfirmation,
+    required String telefono,
+    required String carrera,
+    required List<int> idRol,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/register',
+        data: {
+          'nombre': nombre,
+          'correo': correo,
+          'password': password,
+          'password_confirmation': passwordConfirmation,
+          'telefono': telefono,
+          'carrera': carrera,
+          'id_rol': idRol,
+        },
+      );
+      if (response.statusCode == 201 && response.data['success'] == true) {
+        return response.data['data'];
+      }
+    } catch (error) {
+      print("Error en registro: $error");
+    }
+    return null;
+  }
+
   /// Cierra la sesión actual
   static Future<void> signOut() async {
     try {

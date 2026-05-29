@@ -4,6 +4,7 @@ import 'package:app_lince_emp/screens/home_screen.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../api/auth_api.dart';
+import '../screens/google_register_screen.dart';
 
 class AuthController extends GetxController {
   // Variable reactiva para almacenar el usuario de Google
@@ -19,9 +20,26 @@ class AuthController extends GetxController {
   // Variable reactiva para el estado de carga
   final RxBool isLoading = false.obs;
 
-  /// Método para iniciar sesión
+  // 1. Una palabra clave secreta que solo tu app conoce
+  final String _secretKey = "L1nc3Emp_Secr3t_2026!";
+
+  // Helper para generar la contraseña única de Google de forma segura
+  String _generateGooglePassword(String email, String googleId) {
+    return "${email}_${googleId}_$_secretKey";
+  }
+
+  // Helper interno para no repetir código al guardar los datos del usuario
+  void _processAuthSuccess(Map<String, dynamic> data) {
+    token.value = data['token'];
+    final user = data['user'] ?? {};
+    userData.value = Map<String, dynamic>.from(user);
+    userId.value = user['id'];
+    roles.value = user['roles'] ?? [];
+  }
+
+  /// Método para iniciar sesión con google
   Future<void> login() async {
-    isLoading.value = true; // Mostramos indicador de carga
+    isLoading.value = true;
 
     try {
       final account = await AuthApi.signInWithGoogle();
@@ -29,15 +47,66 @@ class AuthController extends GetxController {
       if (account != null) {
         currentUser.value = account;
 
-        // Aquí podrías enviar un token a tu backend propio si lo tuvieras
-        // final authentication = await account.authentication;
-        // final idToken = authentication.idToken;
+        // Generamos la contraseña determinista
+        final passwordFake = _generateGooglePassword(account.email, account.id);
 
+        // Intentamos iniciar sesión en tu backend con los datos de Google
+        final data = await AuthApi.loginWithEmail(account.email, passwordFake);
+
+        if (data != null) {
+          // CASO A: Ya existía en la BD, entramos directo
+          _processAuthSuccess(data);
+          Get.offAll(() => const HomeScreen());
+        } else {
+          // CASO B: No existe en la BD, lo mandamos al formulario simplificado
+          Get.to(() => const GoogleRegisterScreen());
+        }
+      }
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  /// Método adaptado para registrar usuarios de Google
+  Future<void> registerGoogleUser({
+    required String telefono,
+    required String carrera,
+    required bool isVendor,
+  }) async {
+    final account = currentUser.value;
+    if (account == null) return;
+
+    if (telefono.isEmpty || carrera.isEmpty) {
+      Get.snackbar(
+        "Error",
+        "Por favor completa los campos faltantes",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    isLoading.value = true;
+    try {
+      final passwordFake = _generateGooglePassword(account.email, account.id);
+      final List<int> idRol = isVendor ? [2, 3] : [3];
+
+      final data = await AuthApi.register(
+        nombre: account.displayName ?? 'Usuario Google',
+        correo: account.email,
+        password: passwordFake,
+        passwordConfirmation: passwordFake, // Coinciden automáticamente
+        telefono: telefono,
+        carrera: carrera,
+        idRol: idRol,
+      );
+
+      if (data != null) {
+        _processAuthSuccess(data);
+        Get.snackbar("Éxito", "Cuenta vinculada y creada con éxito");
         Get.offAll(() => const HomeScreen());
       }
     } finally {
-      isLoading.value =
-          false; // Ocultamos indicador de carga independientemente del resultado
+      isLoading.value = false;
     }
   }
 
@@ -69,6 +138,66 @@ class AuthController extends GetxController {
           "Credenciales incorrectas o error en el servidor",
           snackPosition: SnackPosition.BOTTOM,
         );
+      }
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  /// Método para registrarse
+  Future<void> register({
+    required String nombre,
+    required String correo,
+    required String password,
+    required String passwordConfirmation,
+    required String telefono,
+    required String carrera,
+    required bool isVendor,
+  }) async {
+    if (nombre.isEmpty ||
+        correo.isEmpty ||
+        password.isEmpty ||
+        telefono.isEmpty ||
+        carrera.isEmpty) {
+      Get.snackbar(
+        "Error",
+        "Por favor completa todos los campos",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    if (password != passwordConfirmation) {
+      Get.snackbar(
+        "Error",
+        "Las contraseñas no coinciden",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    isLoading.value = true;
+    try {
+      final List<int> idRol = isVendor ? [2, 3] : [3];
+      final data = await AuthApi.register(
+        nombre: nombre,
+        correo: correo,
+        password: password,
+        passwordConfirmation: passwordConfirmation,
+        telefono: telefono,
+        carrera: carrera,
+        idRol: idRol,
+      );
+
+      if (data != null) {
+        token.value = data['token'];
+        final user = data['user'] ?? {};
+        userData.value = Map<String, dynamic>.from(user);
+        userId.value = user['id'];
+        roles.value = user['roles'] ?? [];
+
+        Get.snackbar("Éxito", "Cuenta creada exitosamente");
+        Get.offAll(() => const HomeScreen());
       }
     } finally {
       isLoading.value = false;
