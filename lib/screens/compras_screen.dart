@@ -73,7 +73,27 @@ class ComprasScreen extends StatelessWidget {
                         ),
                       ),
                       title: Text(item.productName),
-                      subtitle: Text("Cantidad: ${item.quantity}"),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Cantidad: ${item.quantity}"),
+                          Text(
+                            "Vendedor: ${item.sellerName}",
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            "Email: ${item.sellerEmail}",
+                            style: const TextStyle(fontSize: 11),
+                          ),
+                          Text(
+                            "Tel: ${item.sellerPhone}",
+                            style: const TextStyle(fontSize: 11),
+                          ),
+                        ],
+                      ),
                       trailing: Text(
                         "\$${(item.price * item.quantity).toStringAsFixed(2)}",
                         style: const TextStyle(fontWeight: FontWeight.w500),
