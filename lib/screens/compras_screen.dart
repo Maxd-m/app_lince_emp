@@ -60,30 +60,141 @@ class ComprasScreen extends StatelessWidget {
                       ? Colors.green
                       : Colors.orange,
                 ),
-                children: purchase.items.map((item) {
-                  return ListTile(
-                    leading: ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: Image.network(
-                        item.imageUrl,
-                        width: 40,
-                        height: 40,
-                        fit: BoxFit.cover,
+                children: [
+                  ...purchase.items.map((item) {
+                    return ListTile(
+                      leading: ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: Image.network(
+                          item.imageUrl,
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      title: Text(item.productName),
+                      subtitle: Text("Cantidad: ${item.quantity}"),
+                      trailing: Text(
+                        "\$${(item.price * item.quantity).toStringAsFixed(2)}",
+                        style: const TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                    );
+                  }).toList(),
+
+                  // Botón de pagar si está pendiente
+                  if (purchase.status.toLowerCase() == "pendiente")
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: () => _showPaymentMethodSelector(
+                            context,
+                            controller,
+                            purchase.id,
+                          ),
+                          icon: const Icon(Icons.payment),
+                          label: const Text("Pagar ahora"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.orange,
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
-                    title: Text(item.productName),
-                    subtitle: Text("Cantidad: ${item.quantity}"),
-                    trailing: Text(
-                      "\$${(item.price * item.quantity).toStringAsFixed(2)}",
-                      style: const TextStyle(fontWeight: FontWeight.w500),
-                    ),
-                  );
-                }).toList(),
+                ],
               ),
             );
           },
         );
       }),
+    );
+  }
+
+  void _showPaymentMethodSelector(
+    BuildContext context,
+    PurchaseController controller,
+    String purchaseId,
+  ) async {
+    // Cargar métodos antes de mostrar el modal
+    await controller.loadPaymentMethods();
+
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(20),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Selecciona un método de pago",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
+            Obx(() {
+              if (controller.paymentMethods.isEmpty) {
+                return const Center(child: Text("Cargando métodos..."));
+              }
+              return Column(
+                children: controller.paymentMethods.map((method) {
+                  return ListTile(
+                    leading: Icon(
+                      method['metodo'].toString().contains('Tarjeta')
+                          ? Icons.credit_card
+                          : Icons.money,
+                      color: Colors.blueGrey,
+                    ),
+                    title: Text(method['metodo']),
+                    onTap: () {
+                      Get.back(); // Cerrar modal
+                      _confirmPayment(
+                        purchaseId,
+                        method['id'],
+                        method['metodo'],
+                        controller,
+                      );
+                    },
+                  );
+                }).toList(),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _confirmPayment(
+    String purchaseId,
+    int methodId,
+    String methodName,
+    PurchaseController controller,
+  ) {
+    Get.dialog(
+      AlertDialog(
+        title: const Text("Confirmar Pago"),
+        content: Text(
+          "¿Deseas pagar el pedido #$purchaseId usando $methodName?",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text("Cancelar"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Get.back();
+              controller.pay(purchaseId, methodId);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            child: const Text("Confirmar"),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -7,6 +7,7 @@ import '../screens/products_screen.dart';
 import '../screens/vendors_screen.dart';
 import '../screens/profile_screen.dart';
 import '../screens/login_screen.dart';
+import '../screens/ventas_screen.dart';
 
 class AppDrawer extends StatelessWidget {
   final String currentRoute;
@@ -73,6 +74,26 @@ class AppDrawer extends StatelessWidget {
                         Get.to(() => const ComprasScreen());
                     },
                   ),
+                  // Solo mostrar si tiene el rol de vendedor (ID 2)
+                  if (authController.roles.any((role) => role['id'] == 2))
+                    ListTile(
+                      leading: const Icon(
+                        Icons.storefront,
+                        color: Colors.blueGrey,
+                      ),
+                      title: const Text('Mis ventas'),
+                      subtitle: const Text(
+                        'Pedidos recibidos',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      selected: currentRoute == 'ventas',
+                      onTap: () {
+                        Get.back();
+                        if (currentRoute != 'ventas') {
+                          Get.to(() => const VentasScreen());
+                        }
+                      },
+                    ),
                 ],
               );
             } else {
