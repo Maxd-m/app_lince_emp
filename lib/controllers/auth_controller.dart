@@ -2,11 +2,14 @@
 
 import 'package:app_lince_emp/screens/home_screen.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../api/auth_api.dart';
 import '../screens/google_register_screen.dart';
 
 class AuthController extends GetxController {
+  final _box = GetStorage();
+
   // Variable reactiva para almacenar el usuario de Google
   // Usamos Rxn para indicar que puede ser nulo
   final Rxn<GoogleSignInAccount> currentUser = Rxn<GoogleSignInAccount>();
@@ -28,6 +31,12 @@ class AuthController extends GetxController {
     return "${email}_${googleId}_$_secretKey";
   }
 
+  @override
+  void onInit() {
+    super.onInit();
+    _loadSession();
+  }
+
   // Helper interno para no repetir código al guardar los datos del usuario
   void _processAuthSuccess(Map<String, dynamic> data) {
     token.value = data['token'];
@@ -35,6 +44,25 @@ class AuthController extends GetxController {
     userData.value = Map<String, dynamic>.from(user);
     userId.value = user['id'];
     roles.value = user['roles'] ?? [];
+
+    // Guardar datos para persistencia
+    _box.write('token', token.value);
+    _box.write('userData', userData.value);
+    _box.write('userId', userId.value);
+    _box.write('roles', roles.value);
+  }
+
+  void _loadSession() {
+    final savedToken = _box.read('token');
+    if (savedToken != null) {
+      token.value = savedToken;
+      final savedUser = _box.read('userData');
+      if (savedUser != null) {
+        userData.value = Map<String, dynamic>.from(savedUser);
+      }
+      userId.value = _box.read('userId');
+      roles.value = _box.read('roles') ?? [];
+    }
   }
 
   /// Método para iniciar sesión con google
@@ -125,12 +153,7 @@ class AuthController extends GetxController {
     try {
       final data = await AuthApi.loginWithEmail(email, password);
       if (data != null) {
-        token.value = data['token'];
-        final user = data['user'] ?? {};
-        userData.value = Map<String, dynamic>.from(user);
-        userId.value = user['id'];
-        roles.value = user['roles'] ?? [];
-
+        _processAuthSuccess(data);
         Get.offAll(() => const HomeScreen());
       } else {
         Get.snackbar(
@@ -190,12 +213,7 @@ class AuthController extends GetxController {
       );
 
       if (data != null) {
-        token.value = data['token'];
-        final user = data['user'] ?? {};
-        userData.value = Map<String, dynamic>.from(user);
-        userId.value = user['id'];
-        roles.value = user['roles'] ?? [];
-
+        _processAuthSuccess(data);
         Get.snackbar("Éxito", "Cuenta creada exitosamente");
         Get.offAll(() => const HomeScreen());
       }
@@ -214,6 +232,7 @@ class AuthController extends GetxController {
       userData.clear();
       roles.clear();
       userId.value = null;
+      _box.erase(); // Limpiar almacenamiento local
       Get.offAll(() => const HomeScreen());
     } finally {
       isLoading.value = false;
