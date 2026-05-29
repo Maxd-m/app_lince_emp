@@ -227,4 +227,14 @@ class AuthController extends GetxController {
   String get displayEmail =>
       currentUser.value?.email ?? userData['correo'] ?? '';
   String? get displayPhoto => currentUser.value?.photoUrl;
+
+  /// Verifica si el usuario tiene el rol de vendedor (ID 2)
+  bool get isVendor {
+    if (roles.isEmpty) return false;
+    return roles.any((role) {
+      if (role is int) return role == 2;
+      if (role is Map) return role['id'] == 2;
+      return false;
+    });
+  }
 }

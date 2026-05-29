@@ -69,4 +69,28 @@ class PurchaseApi {
       return false;
     }
   }
+
+  /// Crea una nueva venta (checkout del carrito)
+  static Future<bool> createPurchase({
+    required String lugar,
+    required String tipo,
+    required List<Map<String, dynamic>> productos,
+    int? id_metodo_de_pago,
+  }) async {
+    try {
+      final Map<String, dynamic> data = {
+        'lugar': lugar,
+        'tipo': tipo,
+        'productos': productos,
+      };
+      if (id_metodo_de_pago != null)
+        data['id_metodo_de_pago'] = id_metodo_de_pago;
+
+      final response = await _dio.post('/ventas', data: data);
+      return response.statusCode == 201 && response.data['success'] == true;
+    } catch (e) {
+      print("Error al crear venta: $e");
+      return false;
+    }
+  }
 }

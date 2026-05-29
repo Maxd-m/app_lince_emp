@@ -65,4 +65,23 @@ class ProductApi {
       }
     }
   }
+
+  /// Obtiene los productos registrados por el vendedor autenticado
+  static Future<List<Product>> fetchMyProducts(String token) async {
+    try {
+      final response = await _dio.get(
+        '/mis-productos',
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+
+      if (response.statusCode == 200 && response.data['success'] == true) {
+        final List<dynamic> productosJson = response.data['data'];
+        return productosJson.map((json) => Product.fromJson(json)).toList();
+      }
+      return [];
+    } catch (e) {
+      print("Error en fetchMyProducts: $e");
+      return [];
+    }
+  }
 }

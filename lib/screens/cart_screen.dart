@@ -104,6 +104,64 @@ class CartScreen extends StatelessWidget {
     );
   }
 
+  void _showCheckoutOptions(BuildContext context) {
+    final TextEditingController lugarController = TextEditingController(
+      text: "UTICS",
+    );
+
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Obx(
+          () => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                "Finalizar Pedido",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: lugarController,
+                decoration: const InputDecoration(
+                  labelText: "Lugar de entrega",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 20),
+              if (cartController.isLoading.value)
+                const Center(child: CircularProgressIndicator())
+              else ...[
+                ListTile(
+                  leading: const Icon(Icons.credit_card, color: Colors.blue),
+                  title: const Text("Pagar Ahora (Tarjeta)"),
+                  onTap: () => cartController.checkout(
+                    lugar: lugarController.text,
+                    tipo: "pagada",
+                    idMetodoPago: 2,
+                  ),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.money_off, color: Colors.orange),
+                  title: const Text("Pagar al Recibir (Pendiente)"),
+                  onTap: () => cartController.checkout(
+                    lugar: lugarController.text,
+                    tipo: "pendiente",
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+      isScrollControlled: true,
+    );
+  }
+
   Widget _buildSummary(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(24),
@@ -143,13 +201,7 @@ class CartScreen extends StatelessWidget {
               width: double.infinity,
               height: 54,
               child: ElevatedButton(
-                onPressed: () {
-                  Get.snackbar(
-                    "Pago",
-                    "Funcionalidad de pago próximamente",
-                    snackPosition: SnackPosition.BOTTOM,
-                  );
-                },
+                onPressed: () => _showCheckoutOptions(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).primaryColor,
                   foregroundColor: Colors.white,

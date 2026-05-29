@@ -54,10 +54,10 @@ class ComprasScreen extends StatelessWidget {
                     purchase.status.toUpperCase(),
                     style: const TextStyle(fontSize: 10, color: Colors.white),
                   ),
-                  backgroundColor:
-                      purchase.status.toLowerCase() == "confirmada" ||
-                          purchase.status.toLowerCase() == "entregado"
+                  backgroundColor: purchase.status.toLowerCase() == "completada"
                       ? Colors.green
+                      : purchase.status.toLowerCase() == "confirmada"
+                      ? Colors.indigo
                       : Colors.orange,
                 ),
                 children: [
