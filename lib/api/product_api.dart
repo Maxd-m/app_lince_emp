@@ -2,6 +2,7 @@
 
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // Asegúrate de tener este paquete o cambia el acceso a tu .env
+import 'package:get_storage/get_storage.dart';
 import '../models/product_model.dart';
 
 class ProductApi {
@@ -27,10 +28,21 @@ class ProductApi {
 
       if (response.statusCode == 200 && response.data['success'] == true) {
         final List<dynamic> productosJson = response.data['data'];
+        // Guardamos en caché los datos crudos
+        GetStorage().write('cached_products', productosJson);
         return productosJson.map((json) => Product.fromJson(json)).toList();
       }
       return [];
     } catch (e, stackTrace) {
+      // Fallback: Si no hay internet, intentamos cargar del caché
+      final cachedData = GetStorage().read('cached_products');
+      if (cachedData != null) {
+        print("Cargando productos desde el caché local...");
+        return (cachedData as List)
+            .map((json) => Product.fromJson(json))
+            .toList();
+      }
+
       // <-- CAMBIO AQUÍ: Agrega stackTrace
       print("--- ERROR EN FETCH ALL PRODUCTS ---");
       print("Mensaje de error: $e");
