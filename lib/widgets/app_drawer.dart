@@ -7,6 +7,8 @@ import '../screens/products_screen.dart';
 import '../screens/vendors_screen.dart';
 import '../screens/profile_screen.dart';
 import '../screens/login_screen.dart';
+import '../screens/ventas_screen.dart';
+import '../screens/my_products_screen.dart';
 
 class AppDrawer extends StatelessWidget {
   final String currentRoute;
@@ -73,6 +75,45 @@ class AppDrawer extends StatelessWidget {
                         Get.to(() => const ComprasScreen());
                     },
                   ),
+                  // Solo mostrar si tiene el rol de vendedor (ID 2)
+                  if (authController.isVendor) ...[
+                    ListTile(
+                      leading: const Icon(
+                        Icons.inventory_2,
+                        color: Colors.blueGrey,
+                      ),
+                      title: const Text('Mis productos'),
+                      subtitle: const Text(
+                        'Gestionar mi catálogo',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      selected: currentRoute == 'my_products',
+                      onTap: () {
+                        Get.back();
+                        if (currentRoute != 'my_products') {
+                          Get.to(() => MyProductsScreen());
+                        }
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(
+                        Icons.storefront,
+                        color: Colors.blueGrey,
+                      ),
+                      title: const Text('Mis ventas'),
+                      subtitle: const Text(
+                        'Pedidos recibidos',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      selected: currentRoute == 'ventas',
+                      onTap: () {
+                        Get.back();
+                        if (currentRoute != 'ventas') {
+                          Get.to(() => const VentasScreen());
+                        }
+                      },
+                    ),
+                  ],
                 ],
               );
             } else {

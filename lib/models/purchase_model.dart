@@ -37,6 +37,9 @@ class PurchaseItem {
   final double price;
   final int quantity;
   final String imageUrl;
+  final String sellerName;
+  final String sellerEmail;
+  final String sellerPhone;
 
   PurchaseItem({
     required this.productId,
@@ -44,12 +47,16 @@ class PurchaseItem {
     required this.price,
     required this.quantity,
     required this.imageUrl,
+    required this.sellerName,
+    required this.sellerEmail,
+    required this.sellerPhone,
   });
 
   factory PurchaseItem.fromJson(Map<String, dynamic> json) {
     final producto = json['producto'] ?? {};
     // Intentamos obtener la primera imagen del producto si existe
     final imagenes = producto['imagenes'] as List? ?? [];
+    final vendedor = producto['vendedor'] ?? {};
     return PurchaseItem(
       productId: json['id_producto'].toString(),
       productName: producto['nombre'] ?? 'Producto',
@@ -59,6 +66,9 @@ class PurchaseItem {
       imageUrl: imagenes.isNotEmpty
           ? imagenes[0]['url_imagen']
           : "https://bunchobagels.com/wp-content/uploads/2024/09/placeholder.jpg",
+      sellerName: vendedor['nombre'] ?? 'No disponible',
+      sellerEmail: vendedor['correo'] ?? 'No disponible',
+      sellerPhone: vendedor['telefono'] ?? 'No disponible',
     );
   }
 }

@@ -1,6 +1,7 @@
 // lib/screens/login_screen.dart
 
 import 'package:app_lince_emp/screens/home_screen.dart';
+import 'package:app_lince_emp/screens/register_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
@@ -173,6 +174,14 @@ class LoginScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextButton(
+                  onPressed: () => Get.to(() => RegisterScreen()),
+                  child: const Text(
+                    "¿No tienes cuenta? Regístrate aquí",
+                    style: TextStyle(color: Colors.blueGrey),
                   ),
                 ),
               ],
