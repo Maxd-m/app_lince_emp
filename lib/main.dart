@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:app_lince_emp/screens/login_screen.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:app_lince_emp/screens/onboarding_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,6 +28,9 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    final box = GetStorage();
+    final bool hasSeenOnboarding = box.read('hasSeenOnboarding') ?? false;
+
     return GetMaterialApp(
       title: 'Lince emp',
       debugShowCheckedModeBanner: false,
@@ -49,7 +53,7 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         // colorScheme: .fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const HomeScreen(),
+      home: hasSeenOnboarding ? const HomeScreen() : const OnboardingScreen(),
       routes: {
         '/login': (context) => LoginScreen(),
         '/home': (context) => const HomeScreen(),
