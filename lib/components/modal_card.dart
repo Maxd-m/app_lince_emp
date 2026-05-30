@@ -77,7 +77,7 @@ class _ModalCardState extends State<Modalcard> {
                   _buildButton(text: "Aceptar", onTap: widget.onTapAceptar, parentWidth: width),
                   _buildButton(
                     text: "Cancelar",
-                    onTap: () => Navigator.of(context).pop(),
+                    onTap: () => Navigator.pop(context),
                      parentWidth: width
                   ),
                 ],
@@ -100,7 +100,6 @@ class _ModalCardState extends State<Modalcard> {
       gap: 10,
       height: 30,
       borderRadius: '50',
-      onTap: onTap,
       children: [
         Text(
           text,
@@ -111,6 +110,6 @@ class _ModalCardState extends State<Modalcard> {
           ),
         ),
       ],
-    ).withHover(hoverColor: Colors.transparent, scale: 1.05);
+    ).withHover(hoverColor: Colors.transparent, scale: 1.05, onTap: onTap);
   }
 }

@@ -85,7 +85,7 @@ class MyProductsScreen extends StatelessWidget {
         );
       }),
       floatingActionButton: FloatingActionButton(
-        onPressed: controller.addProduct,
+        onPressed: () =>  controller.createdProduct(context),
         backgroundColor: Colors.blueGrey,
         child: const Icon(Icons.add, color: Colors.white),
       ),

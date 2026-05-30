@@ -1,7 +1,11 @@
 // lib/api/product_api.dart
 
+import 'package:app_lince_emp/models/categoria_model.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // Asegúrate de tener este paquete o cambia el acceso a tu .env
+import 'package:image_picker/image_picker.dart';
 import '../models/product_model.dart';
 
 class ProductApi {
@@ -66,7 +70,6 @@ class ProductApi {
     }
   }
 
-  /// Obtiene los productos registrados por el vendedor autenticado
   static Future<List<Product>> fetchMyProducts(String token) async {
     try {
       final response = await _dio.get(
@@ -82,6 +85,150 @@ class ProductApi {
     } catch (e) {
       print("Error en fetchMyProducts: $e");
       return [];
+    }
+  }
+
+  static Future<List<Categoria>> fetchAllCategory() async {
+    try {
+      final response = await _dio.get('/categorias');
+      if (response.statusCode == 200 && response.data['success'] == true) {
+        final List<dynamic> categoriesJson = response.data['data'];
+        return categoriesJson.map((json) => Categoria.fromJson(json)).toList();
+      }
+      return [];
+    } catch (e) {
+      print(
+        "Error en fetchProductById: $e. Aplicando fallback de filtrado local...",
+      );
+      return [];
+    }
+  }
+
+  static Future<void> storeProducto({
+    required String token,
+    required String nombre,
+    String? descripcion,
+    required double precio,
+    required int stock,
+    bool? es_perecedero,
+    String? status,
+    List<int>? categorias,
+    List<XFile>? imagenes,
+  }) async {
+    try {
+      Map<String, dynamic> data = {
+        'nombre': nombre,
+        'descripcion': descripcion,
+        'precio': precio,
+        'stock': stock,
+        'es_perecedero': (es_perecedero ?? false) ? 1 : 0,
+        'status': status ?? 'disponible',
+      };
+
+      if (categorias != null) {
+        data['categorias[0]'] = categorias;
+      }
+      if (imagenes != null && imagenes.isNotEmpty) {
+        data['fotos[]'] = await Future.wait(
+          imagenes.map((imagen) async {
+            if (kIsWeb) {
+              return MultipartFile.fromBytes(
+                await imagen.readAsBytes(),
+                filename: imagen.name,
+              );
+            }
+
+            return MultipartFile.fromFile(imagen.path, filename: imagen.name);
+          }),
+        );
+      }
+
+      FormData formData = FormData.fromMap(data);
+
+      final response = await _dio.post(
+        '/productos',
+        data: formData,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Accept': 'application/json',
+          },
+        ),
+      );
+
+      print("Producto actualizado: ${response.data}");
+    } on DioException catch (e) {
+      print("Error Dio en Store: ${e.response?.data}");
+    } catch (e) {
+      print("Error general en Store: $e");
+    }
+  }
+
+  static Future<void> updateProducto({
+    required int id,
+    required String token,
+    required String nombre,
+    String? descripcion,
+    required double precio,
+    required int stock,
+    bool? es_perecedero,
+    String? status,
+    List<int>? categorias,
+    List<String>? imagenes,
+  }) async {
+    try {
+      Map<String, dynamic> data = {
+        '_method': 'PUT',
+        'nombre': nombre,
+        'precio': precio,
+        'stock': stock,
+      };
+
+      if (descripcion != null) {
+        data['descripcion'] = descripcion;
+      }
+
+      if (es_perecedero != null) {
+        data['es_perecedero'] = es_perecedero ? 1 : 0;
+      }
+
+      if (status != null) {
+        data['status'] = status;
+      }
+
+      if (categorias != null) {
+        data['categorias[]'] = categorias;
+      }
+
+      if (imagenes != null && imagenes.isEmpty) {
+        List<MultipartFile> fotos = [];
+        for (String path in imagenes) {
+          fotos.add(
+            await MultipartFile.fromFile(path, filename: path.split('/').last),
+          );
+        }
+        data['fotos[]'] = fotos;
+      }
+
+      FormData formData = FormData.fromMap(data);
+
+      final response = await _dio.post(
+        '/productos/$id',
+        data: formData,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Accept': 'application/json',
+          },
+        ),
+      );
+
+      print("Producto actualizado: ${response.data}");
+    } on DioException catch (e) {
+      print("Error Dio: ${e.response?.statusCode}");
+      print("Data: ${e.response?.data}");
+    } catch (e) {
+      print("Error al actualizar el Producto. \n Ocurrío el error: $e");
     }
   }
 }
