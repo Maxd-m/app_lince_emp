@@ -6,10 +6,14 @@ import 'package:app_lince_emp/screens/login_screen.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:app_lince_emp/screens/onboarding_screen.dart';
+import 'package:showcaseview/showcaseview.dart';
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // DESCOMENTA ESTA LÍNEA SOLO UNA VEZ PARA LIMPIAR LA MEMORIA:
+  // await GetStorage().erase();
 
   // Inicializa el almacenamiento local para el caché y la sesión
   await GetStorage.init();
@@ -57,7 +61,10 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         // colorScheme: .fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: hasSeenOnboarding ? const HomeScreen() : const OnboardingScreen(),
+      // ignore: deprecated_member_use
+      home: hasSeenOnboarding
+          ? ShowCaseWidget(builder: (context) => const HomeScreen())
+          : const OnboardingScreen(),
       routes: {
         '/login': (context) => LoginScreen(),
         '/home': (context) => const HomeScreen(),
