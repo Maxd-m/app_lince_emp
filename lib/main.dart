@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:app_lince_emp/screens/home_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -5,12 +6,15 @@ import 'package:app_lince_emp/screens/login_screen.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:app_lince_emp/screens/onboarding_screen.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Inicializa el almacenamiento local para el caché y la sesión
   await GetStorage.init();
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   try {
     // 4. Carga el archivo .env de tus assets

@@ -16,9 +16,7 @@ class VendorCard extends StatelessWidget {
   Widget build(BuildContext context) {
     // Valores por defecto como en tu React
     final int ratingStars = vendor.rating > 0 ? vendor.rating.round() : 5;
-    final List<String> categories = vendor.categories.isNotEmpty
-        ? vendor.categories
-        : ["cat 1", "cat 2", "cat 7", "cat 5"];
+    final List<String> categories = vendor.categories;
     final String description = vendor.description.isNotEmpty
         ? vendor.description
         : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras finibus ultrices congue. Class aptent taciti sociosqu.";
@@ -50,8 +48,8 @@ class VendorCard extends StatelessWidget {
                       radius: 40, // w-24 / w-28 aproximación
                       backgroundColor: Colors.white,
                       backgroundImage: NetworkImage(
-                        vendor.image.isNotEmpty
-                            ? vendor.image
+                        vendor.url.isNotEmpty
+                            ? vendor.url
                             : "https://placehold.co/400x400/png",
                       ),
                     ),

@@ -21,23 +21,45 @@ class VendorApi {
       if (response.statusCode == 200 && response.data['success'] == true) {
         final List<dynamic> productsData = response.data['data'];
 
-        // Usamos un mapa para evitar agregar el mismo vendedor varias veces
-        final Map<String, Vendor> uniqueVendors = {};
+        final Map<String, dynamic> vendorJsons = {};
+        final Map<String, Set<String>> vendorCategoriesMap = {};
 
         for (var productJson in productsData) {
-          if (productJson['vendedor'] != null) {
-            final vendorJson = productJson['vendedor'];
-            final vendorId = vendorJson['id'].toString();
+          final vendorJson = productJson['vendedor'];
+          if (vendorJson != null) {
+            final String vendorId = vendorJson['id'].toString();
 
-            // Solo lo agregamos si no está ya en nuestro mapa
-            if (!uniqueVendors.containsKey(vendorId)) {
-              uniqueVendors[vendorId] = Vendor.fromJson(vendorJson);
+            // Guardamos el JSON del vendedor si es la primera vez que lo vemos
+            vendorJsons.putIfAbsent(vendorId, () => vendorJson);
+
+            // Extraemos las categorías de este producto específico
+            final List? productCats = productJson['categorias'] as List?;
+            if (productCats != null) {
+              vendorCategoriesMap.putIfAbsent(vendorId, () => <String>{});
+              for (var cat in productCats) {
+                if (cat['nombre'] != null) {
+                  vendorCategoriesMap[vendorId]!.add(cat['nombre'].toString());
+                }
+              }
             }
           }
         }
 
-        // Retornamos solo los valores (la lista de vendedores únicos)
-        return uniqueVendors.values.toList();
+        // Construimos la lista final de Vendor inyectando las categorías recolectadas
+        return vendorJsons.entries.map((entry) {
+          final id = entry.key;
+          final json = entry.value;
+          return Vendor(
+            id: id,
+            name: json['nombre'] ?? 'Vendedor sin nombre',
+            url:
+                json['url'] ??
+                "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png",
+            rating: 4.5,
+            description: json['carrera'] ?? 'Sin descripción disponible',
+            categories: vendorCategoriesMap[id]?.toList() ?? [],
+          );
+        }).toList();
       } else {
         throw Exception('Error al obtener los productos');
       }
@@ -131,7 +153,8 @@ class VendorApi {
       return VendorDetail(
         id: id,
         name: vendorJson['nombre'] ?? "Vendedor",
-        image:
+        url:
+            vendorJson['url'] ??
             "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png",
         rating: rating,
         description: vendorJson['carrera'] ?? "",
