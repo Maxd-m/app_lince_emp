@@ -104,6 +104,25 @@ class ProductApi {
     }
   }
 
+  static Future<bool> deleteProducto(String id, String token) async
+  {
+     try {
+      final response = await _dio.delete(
+        '/productos/$id',
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+
+      if (response.statusCode == 200 && response.data['success'] == true) {
+        return true;
+      }
+      return false;
+
+    } catch (e) {
+      print("Error al eliminar el producto: $e");
+      return false;
+    }
+  }
+
   static Future<void> storeProducto({
     required String token,
     required String nombre,
@@ -165,7 +184,7 @@ class ProductApi {
   }
 
   static Future<void> updateProducto({
-    required int id,
+    required String id,
     required String token,
     required String nombre,
     String? descripcion,
@@ -174,7 +193,7 @@ class ProductApi {
     bool? es_perecedero,
     String? status,
     List<int>? categorias,
-    List<String>? imagenes,
+    List<XFile>? imagenes,
   }) async {
     try {
       Map<String, dynamic> data = {
@@ -200,14 +219,19 @@ class ProductApi {
         data['categorias[]'] = categorias;
       }
 
-      if (imagenes != null && imagenes.isEmpty) {
-        List<MultipartFile> fotos = [];
-        for (String path in imagenes) {
-          fotos.add(
-            await MultipartFile.fromFile(path, filename: path.split('/').last),
-          );
-        }
-        data['fotos[]'] = fotos;
+      if (imagenes != null && imagenes.isNotEmpty) {
+        data['fotos[]'] = await Future.wait(
+          imagenes.map((imagen) async {
+            if (kIsWeb) {
+              return MultipartFile.fromBytes(
+                await imagen.readAsBytes(),
+                filename: imagen.name,
+              );
+            }
+
+            return MultipartFile.fromFile(imagen.path, filename: imagen.name);
+          }),
+        );
       }
 
       FormData formData = FormData.fromMap(data);

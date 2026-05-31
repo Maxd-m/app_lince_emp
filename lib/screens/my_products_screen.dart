@@ -71,7 +71,7 @@ class MyProductsScreen extends StatelessWidget {
                   children: [
                     IconButton(
                       icon: const Icon(Icons.edit, color: Colors.blue),
-                      onPressed: () => controller.editProduct(product),
+                      onPressed: () => controller.editProduct(context, product),
                     ),
                     IconButton(
                       icon: const Icon(Icons.delete, color: Colors.red),

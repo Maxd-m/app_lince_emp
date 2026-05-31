@@ -1,5 +1,7 @@
 // lib/models/product_model.dart
 
+import 'package:app_lince_emp/models/categoria_model.dart';
+
 import 'vendor_model.dart';
 
 class Product {
@@ -11,6 +13,9 @@ class Product {
   final List<String> images;
   final Vendor vendor;
   final List<Review> reviews;
+  final bool? perecedero;
+  final List<Categoria> categoria;
+  final String? status;
 
   Product({
     required this.id,
@@ -21,9 +26,13 @@ class Product {
     required this.images,
     required this.vendor,
     required this.reviews,
+    this.perecedero,
+    required this.categoria,
+    this.status,
   });
 
-  factory Product.fromJson(Map<String, dynamic> json) {
+  factory Product.fromJson(Map<String, dynamic> json)
+  {
     // Mapeo de la lista de imágenes del backend
     final listImagenes = json['imagenes'] as List? ?? [];
     List<String> parsedImages = listImagenes
@@ -52,6 +61,16 @@ class Product {
           double.tryParse(json['precio']?.toString() ?? '0') ??
           0.0, // De String a double
       stock: json['stock'] as int? ?? 0,
+      perecedero: json['es_perecedero'] as bool? ?? true,
+      status: json['status'] ?? 'disponible',
+      categoria:
+          (json['categorias'] as List?)
+              ?.map(
+                (categoria) =>
+                    Categoria(id:  categoria['id'].toString(), name: categoria['nombre']),
+              )
+              .toList() ??
+          [],
       images: parsedImages,
       vendor: Vendor.fromJson(json['vendedor'] ?? {}),
       reviews: parsedReviews,

@@ -46,7 +46,8 @@ class MyProductsController extends GetxController {
     fetchMyProducts();
   }
 
-  Future<void> fetchMyProducts() async {
+  Future<void> fetchMyProducts() async
+  {
     final token = authController.token.value;
     if (token == null) return;
 
@@ -80,24 +81,97 @@ class MyProductsController extends GetxController {
     limpiarFormulario();
     showDialog(
       context: context,
-      builder: (context) => _buildModalForm(context),
+      builder: (context) => _buildModalForm(context, () {
+        final token = authController.token.value;
+        if (token == null) {
+          Get.snackbar("Inicia sesión", "Necesitas estar autenticado");
+          return;
+        }
+        ;
+        try {
+          ProductApi.storeProducto(
+            token: token,
+            nombre: nombreController.text,
+            descripcion: descripcionController.text,
+            precio: double.parse(precioController.text),
+            stock: int.parse(stockController.text),
+            es_perecedero: esPerecedero.value,
+            status: _estados.firstWhere(
+              (estado) => estado['id'] == _estadosId,
+            )['nombre'],
+            categorias: _categoriaId != null
+                ? [int.parse(_categoriaId!)]
+                : null,
+            imagenes: imagenes,
+          );
+          Get.snackbar("Producto creado con éxito", "El producto ha sido creado con éxito");
+          Navigator.pop(context);
+        } catch (e) {
+          Get.snackbar("Ocurrio un error", "Erro: ${e}");
+        }
+      }),
     );
   }
 
   // Placeholders para funcionalidades futuras
-  void editProduct(Product product) {
-    Get.snackbar(
-      "Editar",
-      "Próximamente: Formulario para editar ${product.name}",
+  void editProduct(context, Product product) {
+    limpiarFormulario();
+    llenarFormulario(product);
+     showDialog(
+      context: context,
+      builder: (context) => _buildModalForm(context, ()
+      {
+        final token = authController.token.value;
+        if (token == null) {
+          Get.snackbar("Inicia sesión", "Necesitas estar autenticado");
+          return;
+        }
+        ;
+        try {
+          ProductApi.updateProducto(
+            token: token,
+            id: product.id,
+            nombre: nombreController.text,
+            descripcion: descripcionController.text,
+            precio: double.parse(precioController.text),
+            stock: int.parse(stockController.text),
+            es_perecedero: esPerecedero.value,
+            status: _estados.firstWhere(
+              (estado) => estado['id'] == _estadosId,
+            )['nombre'],
+            categorias: _categoriaId != null
+                ? [int.parse(_categoriaId!)]
+                : null,
+            imagenes: imagenes,
+          );
+          Navigator.pop(context);
+        } catch (e) {
+          Get.snackbar("Ocurrio un error", "Erro: ${e}");
+        }
+      }),
     );
-    print("Editando producto ID: ${product.id}");
   }
 
   void deleteProduct(Product product) {
     Get.defaultDialog(
       title: "Eliminar Producto",
       middleText: "¿Estás seguro de que deseas eliminar ${product.name}?",
-      onConfirm: () => Get.back(),
+      onConfirm: () async {
+        try {
+          final token = authController.token.value;
+          if (token == null) return;
+          Get.back();
+          if(await ProductApi.deleteProducto(product.id, token))
+          {
+            Get.snackbar('Éxito', 'Producto eliminado correctamente');
+          }
+          else{
+            Get.snackbar('No se pudo eliminar el producto', 'El producto tiene ventas registradas');
+          };
+        } catch (e) {
+          Get.snackbar('Error', 'No se pudo eliminar el producto');
+        }
+      },
       textConfirm: "Eliminar",
       confirmTextColor: Colors.white,
     );
@@ -127,6 +201,17 @@ class MyProductsController extends GetxController {
 
     _categoriaId = null;
     _estadosId = '1';
+  }
+
+  void llenarFormulario(Product product) {
+    nombreController.text = product.name;
+    descripcionController.text = product.description;
+    precioController.text = product.price.toString();
+    stockController.text = product.stock.toString();
+    _categoriaId = product.categoria[0].id;
+    _estadosId = _estados.firstWhere(
+      (estado) => estado['nombre'] == product.status,
+    )['id'];
   }
 
   Widget buildImagePicker() {
@@ -266,7 +351,7 @@ class MyProductsController extends GetxController {
     });
   }
 
-  Widget _buildModalForm(context) {
+  Widget _buildModalForm(context, VoidCallback onTap) {
     double width = MediaQuery.of(context).size.width;
     String titulo = "Crear Producto";
     return Modalcard(
@@ -323,30 +408,7 @@ class MyProductsController extends GetxController {
           ),
         ),
       ],
-      onTapAceptar: () {
-        final token = authController.token.value;
-        if (token == null) {Get.snackbar("Inicia sesión", "Necesitas estar autenticado"); return;} ;
-        try {
-          ProductApi.storeProducto(
-            token: token,
-            nombre: nombreController.text,
-            descripcion: descripcionController.text,
-            precio: double.parse(precioController.text),
-            stock: int.parse(stockController.text),
-            es_perecedero: esPerecedero.value,
-            status: _estados.firstWhere(
-              (estado) => estado['id'] == _estadosId,
-            )['nombre'],
-            categorias: _categoriaId != null
-                ? [int.parse(_categoriaId!)]
-                : null,
-            imagenes: imagenes,
-          );
-          Navigator.pop(context);
-        } catch (e) {
-          Get.snackbar("Ocurrio un error", "Erro: ${e}");
-        }
-      },
+      onTapAceptar: onTap,
     );
   }
 
