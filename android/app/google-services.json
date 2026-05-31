@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "113734907834",
+    "project_id": "react-2026-itc",
+    "storage_bucket": "react-2026-itc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:113734907834:android:b6fb8c768a40485d8fcf83",
+        "android_client_info": {
+          "package_name": "com.example.app_lince_emp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "113734907834-0odft4j8atd7riel22mdlegdplh64oq0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDHNVsUmViCnZ5OnZkbr-ZvRJKYXJbH6d8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "113734907834-0odft4j8atd7riel22mdlegdplh64oq0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
