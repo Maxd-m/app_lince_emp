@@ -12,7 +12,7 @@ class PurchaseApi {
           BaseOptions(
             baseUrl: dotenv.env['API_URL'] ?? 'http://localhost:8000/api',
             connectTimeout: const Duration(seconds: 8),
-            receiveTimeout: const Duration(seconds: 5),
+            receiveTimeout: const Duration(seconds: 30),
           ),
         )
         ..interceptors.add(
@@ -71,7 +71,32 @@ class PurchaseApi {
   }
 
   /// Crea una nueva venta (checkout del carrito)
-  static Future<bool> createPurchase({
+  //   static Future<bool> createPurchase({
+  //     required String lugar,
+  //     required String tipo,
+  //     required List<Map<String, dynamic>> productos,
+  //     int? id_metodo_de_pago,
+  //   }) async {
+  //     try {
+  //       final Map<String, dynamic> data = {
+  //         'lugar': lugar,
+  //         'tipo': tipo,
+  //         'productos': productos,
+  //       };
+  //       if (id_metodo_de_pago != null)
+  //         data['id_metodo_de_pago'] = id_metodo_de_pago;
+
+  //       final response = await _dio.post('/ventas', data: data);
+  //       return response.statusCode == 201 && response.data['success'] == true;
+  //     } catch (e) {
+  //       print("Error al crear venta: $e");
+  //       return false;
+  //     }
+  //   }
+  // }
+
+  /// Crea una nueva venta (checkout del carrito) y devuelve la respuesta del servidor
+  static Future<Map<String, dynamic>?> createPurchase({
     required String lugar,
     required String tipo,
     required List<Map<String, dynamic>> productos,
@@ -83,14 +108,48 @@ class PurchaseApi {
         'tipo': tipo,
         'productos': productos,
       };
-      if (id_metodo_de_pago != null)
+      if (id_metodo_de_pago != null) {
         data['id_metodo_de_pago'] = id_metodo_de_pago;
+      }
+
+      print("========== [DEBUG MP] INICIANDO PETICIÓN ==========");
+      print("➡️ URL destino: ${_dio.options.baseUrl}/ventas");
+      print("➡️ Datos enviados (Payload): $data");
 
       final response = await _dio.post('/ventas', data: data);
-      return response.statusCode == 201 && response.data['success'] == true;
+
+      print("========== [DEBUG MP] PETICIÓN EXITOSA ==========");
+      print("⬅️ Código de estado del Servidor: ${response.statusCode}");
+      print("⬅️ JSON recibido: ${response.data}");
+
+      // Modificado para retornar response.data en lugar de un booleano
+      if ((response.statusCode == 200 || response.statusCode == 201) &&
+          response.data['success'] == true) {
+        return response.data;
+      }
+      return null;
     } catch (e) {
-      print("Error al crear venta: $e");
-      return false;
+      print("========== ❌ [DEBUG MP] ERROR EN LA PETICIÓN ❌ ==========");
+      if (e is DioException) {
+        print("🔴 Tipo de error Dio: ${e.type}");
+        print("🔴 Mensaje de la excepción: ${e.message}");
+        print("🔴 Ruta que falló: ${e.requestOptions.path}");
+
+        if (e.response != null) {
+          print(
+            "🔴 Código HTTP devuelto por el servidor: ${e.response?.statusCode}",
+          );
+          print("🔴 Respuesta cruda del backend: ${e.response?.data}");
+        } else {
+          print(
+            "🔴 El backend no alcanzó a responder nada (No response body). El servidor sigue procesando o colapsó.",
+          );
+        }
+      } else {
+        print("🔴 Error ajeno a Dio / Error inesperado de Dart: $e");
+      }
+      print("=========================================================");
+      return null;
     }
   }
 }

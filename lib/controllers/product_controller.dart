@@ -1,6 +1,7 @@
 // lib/controllers/product_controller.dart
 
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import '../models/product_model.dart';
 import '../api/product_api.dart';
 
@@ -8,16 +9,29 @@ class ProductController extends GetxController {
   final RxList<Product> allProducts = <Product>[].obs;
   final RxList<Product> filteredProducts = <Product>[].obs;
   final RxBool isLoading = false.obs; // Loader reactivo
+  final _box = GetStorage();
 
   @override
   void onInit() {
     super.onInit();
-    _loadProducts();
+    _loadCache();
+    loadProducts();
   }
 
-  Future<void> _loadProducts() async {
+  void _loadCache() {
+    final cached = _box.read('cached_products');
+    if (cached != null) {
+      final productos = (cached as List)
+          .map((json) => Product.fromJson(json))
+          .toList();
+      allProducts.value = productos;
+      filteredProducts.value = productos;
+    }
+  }
+
+  Future<void> loadProducts() async {
     try {
-      isLoading.value = true;
+      if (allProducts.isEmpty) isLoading.value = true;
       final productos = await ProductApi.fetchAllProducts();
       allProducts.value = productos;
       filteredProducts.value = productos;

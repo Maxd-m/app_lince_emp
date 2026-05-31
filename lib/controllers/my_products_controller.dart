@@ -145,6 +145,7 @@ class MyProductsController extends GetxController {
             imagenes: imagenes,
           );
           Navigator.pop(context);
+          Get.snackbar("Producto actualizado correctamente.", "El producto ha sido actualizado con éxito.");
         } catch (e) {
           Get.snackbar("Ocurrio un error", "Erro: ${e}");
         }
