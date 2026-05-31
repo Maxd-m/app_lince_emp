@@ -109,16 +109,13 @@ class ProductApi {
       }
       return [];
     } catch (e) {
-      print(
-        "Error en fetchProductById: $e. Aplicando fallback de filtrado local...",
-      );
+      print("Error en fetchAllCategory: $e");
       return [];
     }
   }
 
-  static Future<bool> deleteProducto(String id, String token) async
-  {
-     try {
+  static Future<bool> deleteProducto(String id, String token) async {
+    try {
       final response = await _dio.delete(
         '/productos/$id',
         options: Options(headers: {'Authorization': 'Bearer $token'}),
@@ -128,7 +125,6 @@ class ProductApi {
         return true;
       }
       return false;
-
     } catch (e) {
       print("Error al eliminar el producto: $e");
       return false;

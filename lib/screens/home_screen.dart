@@ -20,6 +20,14 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Determinamos el número de columnas según el ancho de pantalla
+    final double screenWidth = MediaQuery.of(context).size.width;
+
+    int productCrossAxisCount = screenWidth > 1200
+        ? 4
+        : (screenWidth > 900 ? 3 : (screenWidth > 600 ? 2 : 1));
+    int vendorCrossAxisCount = screenWidth > 1100 ? 2 : 1;
+
     // Inyectamos los controladores
     final AuthController authController = Get.put(AuthController());
     final ProductController productController = Get.put(ProductController());
@@ -112,13 +120,13 @@ class HomeScreen extends StatelessWidget {
                   return GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 1,
-                          childAspectRatio: 0.65,
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 10,
-                        ),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: productCrossAxisCount,
+                      // Ajustamos el aspect ratio para que las tarjetas no se vean excesivamente largas en desktop
+                      childAspectRatio: productCrossAxisCount > 1 ? 0.75 : 0.65,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 10,
+                    ),
                     itemCount: featuredProducts.length,
                     itemBuilder: (context, index) {
                       return ProductCard(product: featuredProducts[index]);
@@ -182,12 +190,17 @@ class HomeScreen extends StatelessWidget {
                     );
                   }
 
-                  return ListView.separated(
+                  return GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: vendorCrossAxisCount,
+                      mainAxisExtent:
+                          280, // Altura fija para mantener uniformidad en el grid de vendedores
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                    ),
                     itemCount: featured.length,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 16),
                     itemBuilder: (context, index) {
                       return VendorCard(vendor: featured[index]);
                     },
@@ -196,59 +209,59 @@ class HomeScreen extends StatelessWidget {
               ),
 
               // === DIVIDER E INFORMACIÓN ADICIONAL ===
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 40.0,
-                  horizontal: 20.0,
-                ),
-                child: Row(
-                  children: [
-                    const Expanded(
-                      child: Divider(color: Colors.green, thickness: 1),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Text(
-                        "Información adicional",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey.shade800,
-                        ),
-                      ),
-                    ),
-                    const Expanded(
-                      child: Divider(color: Colors.green, thickness: 1),
-                    ),
-                  ],
-                ),
-              ),
+              // Padding(
+              //   padding: const EdgeInsets.symmetric(
+              //     vertical: 40.0,
+              //     horizontal: 20.0,
+              //   ),
+              //   child: Row(
+              //     children: [
+              //       const Expanded(
+              //         child: Divider(color: Colors.green, thickness: 1),
+              //       ),
+              //       Padding(
+              //         padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              //         child: Text(
+              //           "Información adicional",
+              //           style: TextStyle(
+              //             fontSize: 24,
+              //             fontWeight: FontWeight.bold,
+              //             color: Colors.grey.shade800,
+              //           ),
+              //         ),
+              //       ),
+              //       const Expanded(
+              //         child: Divider(color: Colors.green, thickness: 1),
+              //       ),
+              //     ],
+              //   ),
+              // ),
 
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Wrap(
-                  spacing: 16.0,
-                  runSpacing: 16.0,
-                  alignment: WrapAlignment.center,
-                  children: [
-                    _buildInfoCard(
-                      context,
-                      title:
-                          "¿Quieres ser parte de nuestra comunidad de vendedores?",
-                      description:
-                          "Consulta los requisitos para registrarte como vendedor en la asociación de sistemas.",
-                      imageUrl: "https://placehold.co/400x400/png",
-                    ),
-                    _buildInfoCard(
-                      context,
-                      title: "¿Te suspendieron la cuenta?",
-                      description:
-                          "Asiste con la asociación de sistemas para resolver inconvenientes con tu cuenta.",
-                      imageUrl: "https://placehold.co/400x400/png",
-                    ),
-                  ],
-                ),
-              ),
+              // Padding(
+              //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              //   child: Wrap(
+              //     spacing: 16.0,
+              //     runSpacing: 16.0,
+              //     alignment: WrapAlignment.center,
+              //     children: [
+              //       _buildInfoCard(
+              //         context,
+              //         title:
+              //             "¿Quieres ser parte de nuestra comunidad de vendedores?",
+              //         description:
+              //             "Consulta los requisitos para registrarte como vendedor en la asociación de sistemas.",
+              //         imageUrl: "https://placehold.co/400x400/png",
+              //       ),
+              //       _buildInfoCard(
+              //         context,
+              //         title: "¿Te suspendieron la cuenta?",
+              //         description:
+              //             "Asiste con la asociación de sistemas para resolver inconvenientes con tu cuenta.",
+              //         imageUrl: "https://placehold.co/400x400/png",
+              //       ),
+              //     ],
+              //   ),
+              // ),
               const SizedBox(height: 40),
             ],
           ),
