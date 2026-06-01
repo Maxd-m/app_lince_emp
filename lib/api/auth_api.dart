@@ -1,6 +1,7 @@
 // lib/api/auth_api.dart
 
 import 'package:dio/dio.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -42,6 +43,19 @@ class AuthApi {
         data: {'correo': correo, 'password': password},
       );
       if (response.statusCode == 200 && response.data['success'] == true) {
+        final userData = response.data['data'];
+        List<dynamic> roles = userData['user']['roles'];
+        for(var rol in roles)
+        {
+          if(rol['id'] == 2){
+            int userId = userData['user']['id'];
+            await suscribirVendedor(userId);
+          }
+          if(rol['id'] == 3){
+            int userId = userData['user']['id'];
+            await suscibirirCliente(userId);
+          }
+        }
         return response.data['data'];
       }
     } catch (error) {
@@ -83,12 +97,55 @@ class AuthApi {
   }
 
   /// Cierra la sesión actual
-  static Future<void> signOut() async {
+  static Future<void> signOut(int userId) async {
     try {
+      // Desuscribir del tema antes de limpiar todo
       await _googleSignIn.disconnect();
       await _googleSignIn.signOut();
     } catch (error) {
       print("Error al cerrar sesión: $error");
     }
   }
+  /// Suscribe al usuario a su tema privado de vendedor
+  static Future<void> suscribirVendedor(int userId) async {
+    try {
+      await FirebaseMessaging.instance.subscribeToTopic("vendedor_$userId");
+      print("🔔 Suscrito exitosamente al tema: vendedor_$userId");
+    } catch (e) {
+      print("❌ Error al suscribir al tema: $e");
+    }
+  }
+
+  static Future<void> desuscribirVendedor(int userId) async {
+    try {
+      await FirebaseMessaging.instance.unsubscribeFromTopic("vendedor_$userId");
+      print("🔕 Desuscrito del tema: vendedor_$userId");
+    } catch (e) {
+      print("❌ Error al desuscribir del tema: $e");
+    }
+  }
+
+
+
+  static Future<void> suscibirirCliente(int userId) async
+  {
+    try {
+      await FirebaseMessaging.instance.subscribeToTopic("cliente_$userId");
+      print("🔔 Suscrito exitosamente al tema: cliente_$userId");
+    } catch (e)
+    {
+      print("❌ Error al suscribir al tema: $e");
+    }
+  }
+  static Future<void> desuscribirCliente(int userId) async
+  {
+    try {
+      await FirebaseMessaging.instance.unsubscribeFromTopic("cliente_$userId");
+      print("🔕 Desuscrito del tema: cliente_$userId");
+    } catch (e)
+    {
+      print("❌ Error al desuscribir del tema: $e");
+    }
+  }
+
 }

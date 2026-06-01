@@ -226,7 +226,8 @@ class AuthController extends GetxController {
   Future<void> logout() async {
     isLoading.value = true;
     try {
-      await AuthApi.signOut();
+      await desuscribir(); // Desuscribimos de los temas antes de cerrar sesión
+      await AuthApi.signOut(userId.value as int);
       currentUser.value = null;
       token.value = null;
       userData.clear();
@@ -236,6 +237,26 @@ class AuthController extends GetxController {
       Get.offAll(() => const HomeScreen());
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> desuscribir() async
+  {
+    try
+    {
+      for(var rol in roles)
+      {
+        if(rol['id'] == 2){
+          await AuthApi.desuscribirVendedor(userId.value as int);
+        }
+        if(rol['id'] == 3){
+          await AuthApi.desuscribirCliente(userId.value as int);
+        }
+      }
+    }
+    catch(e)
+    {
+      print("Error al desuscribir: $e");
     }
   }
 
