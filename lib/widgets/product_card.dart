@@ -16,6 +16,13 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Centralizamos la navegación para evitar duplicidad de lógica
+    void _onNavigate() {
+      onTap != null
+          ? onTap!()
+          : Get.to(() => ProductDetailsScreen(), arguments: product.id);
+    }
+
     // Tomamos la primera imagen del arreglo de imágenes, o un placeholder si está vacío
     final imageUrl = product.images.isNotEmpty
         ? product.images.first
@@ -34,14 +41,7 @@ class ProductCard extends StatelessWidget {
       clipBehavior: Clip
           .antiAlias, // Necesario para que la imagen respete los bordes redondeados
       child: InkWell(
-        onTap:
-            onTap ??
-            () {
-              Get.to(() => ProductDetailsScreen(), arguments: product.id);
-
-              // TODO: Agrega tu lógica de navegación aquí
-              // Ejemplo: Navigator.pushNamed(context, '/product/${product.id}');
-            },
+        onTap: _onNavigate,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -135,14 +135,7 @@ class ProductCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         ElevatedButton(
-                          onPressed:
-                              onTap ??
-                              () {
-                                Get.to(
-                                  () => ProductDetailsScreen(),
-                                  arguments: product.id,
-                                );
-                              }, // Misma lógica de navegación del InkWell
+                          onPressed: _onNavigate,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Theme.of(context).primaryColor,
                             foregroundColor: Colors.white,

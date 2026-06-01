@@ -54,7 +54,7 @@ class VendorDetailsScreen extends StatelessWidget {
                 backgroundColor: Theme.of(context).primaryColor,
                 child: CircleAvatar(
                   radius: 76,
-                  backgroundImage: NetworkImage(vendor.image),
+                  backgroundImage: NetworkImage(vendor.url),
                 ),
               ),
               const SizedBox(height: 16),

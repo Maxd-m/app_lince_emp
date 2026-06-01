@@ -14,6 +14,12 @@ class ProductsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Determinamos el número de columnas según el ancho de pantalla
+    final double screenWidth = MediaQuery.of(context).size.width;
+    int crossAxisCount = screenWidth > 1200
+        ? 4
+        : (screenWidth > 900 ? 3 : (screenWidth > 600 ? 2 : 1));
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Catálogo de Productos"),
@@ -48,14 +54,19 @@ class ProductsScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.filter_list, color: Colors.white),
-                    onPressed: controller.openFilterModal,
+                Obx(
+                  () => Container(
+                    decoration: BoxDecoration(
+                      color: controller.selectedCategoryId.value != null
+                          ? Colors
+                                .orange // Color resaltado si hay filtro
+                          : Theme.of(context).primaryColor,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.filter_list, color: Colors.white),
+                      onPressed: controller.openFilterModal,
+                    ),
                   ),
                 ),
               ],
@@ -77,10 +88,9 @@ class ProductsScreen extends StatelessWidget {
                   vertical: 8,
                 ),
                 // Aquí sí usamos scrolleo normal porque no hay SingleChildScrollView
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 1, // 2 columnas para el catálogo
-                  childAspectRatio:
-                      0.65, // Ajusta según la altura de tu ProductCard
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount,
+                  childAspectRatio: crossAxisCount > 1 ? 0.75 : 0.65,
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                 ),

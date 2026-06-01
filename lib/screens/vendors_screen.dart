@@ -46,18 +46,6 @@ class VendorsScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.filter_list, color: Colors.white),
-                    onPressed: () {
-                      Get.snackbar("Filtros", "Próximamente");
-                    },
-                  ),
-                ),
               ],
             ),
           ),
@@ -92,30 +80,6 @@ class VendorsScreen extends StatelessWidget {
               );
             }),
           ),
-
-          // === LISTA DE VENDEDORES ===
-          // Expanded(
-          //   child: Obx(() {
-          //     if (controller.filteredVendors.isEmpty) {
-          //       return const Center(
-          //         child: Text("No se encontraron colaboradores."),
-          //       );
-          //     }
-
-          //     return ListView.separated(
-          //       padding: const EdgeInsets.symmetric(
-          //         horizontal: 16,
-          //         vertical: 8,
-          //       ),
-          //       itemCount: controller.filteredVendors.length,
-          //       separatorBuilder: (context, index) =>
-          //           const SizedBox(height: 16),
-          //       itemBuilder: (context, index) {
-          //         return VendorCard(vendor: controller.filteredVendors[index]);
-          //       },
-          //     );
-          //   }),
-          // ),
         ],
       ),
     );

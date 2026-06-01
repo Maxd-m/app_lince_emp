@@ -4,26 +4,27 @@ import 'package:app_lince_emp/core/desings/input_select_config.dart';
 import 'package:app_lince_emp/widgets/hover_wrapper.dart';
 
 extension InputselectExtension on DropdownButtonFormField2<String> {
-
-  DropdownButtonFormField2<String> styled(
-    InputselectConfig config,
-  ) {
-    // Retornamos una NUEVA instancia basada en las propiedades de la original (this)
-    // pero aplicando los estilos del objeto config.
+  // Ahora styled pide obligatoriamente los datos que no puede leer de 'this'
+  DropdownButtonFormField2<String> styled({
+    required InputselectConfig config,
+    required List<DropdownMenuItem<String>>? items,
+    required ValueChanged<String?>? onChanged,
+  }) {
     return DropdownButtonFormField2<String>(
-      // MANTENER LOS DATOS ORIGINALES
-      value: initialValue,
-      items: items , // ¡Importante! Si no, el dropdown sale vacío
+      // MANTENER LOS DATOS ORIGINALES ACCESIBLES
+      value: this.initialValue,
+      onSaved: this.onSaved,
+      validator: this.validator,
+
+      // DATOS INYECTADOS PORQUE NO SON ACCESIBLES MEDIANTE 'THIS'
+      items: items,
       onChanged: onChanged,
-      onSaved: onSaved,
-      validator: validator,
 
       // APLICAR ESTILOS DE CONFIG
       isExpanded: config.isExpanded,
       decoration: InputDecoration(
         isDense: config.isDense,
         contentPadding: EdgeInsets.zero,
-        // Agregamos label si fuera necesario, o mantenemos el hint
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(config.borderRadius),
           borderSide: BorderSide(
@@ -67,10 +68,12 @@ extension InputselectExtension on DropdownButtonFormField2<String> {
     );
   }
 
-  // Widget para envolver con Hover
-  Widget withHoverInputSelect(
-     InputselectConfig config,
-  ) {
+  // Modificamos también este método para arrastrar los parámetros requeridos
+  Widget withHoverInputSelect({
+    required InputselectConfig config,
+    required List<DropdownMenuItem<String>>? items,
+    required ValueChanged<String?>? onChanged,
+  }) {
     return HoverWrapper(
       hoverColor: Colors.white,
       baseColor: Colors.white,
@@ -78,10 +81,11 @@ extension InputselectExtension on DropdownButtonFormField2<String> {
       boxShadowHover: config.boxShadowHover,
       child: Builder(
         builder: (context) {
-          // Detectamos si el mouse está encima a través del context de HoverWrapper
           final bool isHovered = HoverData.of(context)?.isHovered ?? false;
           return this.styled(
-            config.copyWith(
+            items: items,
+            onChanged: onChanged,
+            config: config.copyWith(
               borderColor: isHovered
                   ? (config.borderColorHover ?? config.borderColor)
                   : config.borderColor,

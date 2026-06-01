@@ -64,6 +64,8 @@ class VentasScreen extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: status == "confirmada"
+                              ? Colors.indigo
+                              : status == "completada"
                               ? Colors.green
                               : Colors.orange,
                           borderRadius: BorderRadius.circular(8),

@@ -14,11 +14,16 @@ class VendorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Centralizamos la navegación del vendedor
+    void _onNavigate() {
+      onTap != null
+          ? onTap!()
+          : Get.to(() => VendorDetailsScreen(), arguments: vendor.id);
+    }
+
     // Valores por defecto como en tu React
     final int ratingStars = vendor.rating > 0 ? vendor.rating.round() : 5;
-    final List<String> categories = vendor.categories.isNotEmpty
-        ? vendor.categories
-        : ["cat 1", "cat 2", "cat 7", "cat 5"];
+    final List<String> categories = vendor.categories;
     final String description = vendor.description.isNotEmpty
         ? vendor.description
         : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras finibus ultrices congue. Class aptent taciti sociosqu.";
@@ -32,7 +37,7 @@ class VendorCard extends StatelessWidget {
         side: BorderSide(color: Colors.grey.shade300), // border-base-300
       ),
       child: InkWell(
-        onTap: onTap, // Opcional: hace toda la tarjeta clickeable
+        onTap: _onNavigate,
         borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(20.0), // p-5
@@ -45,13 +50,13 @@ class VendorCard extends StatelessWidget {
                 children: [
                   // Avatar circular (mask mask-circle)
                   GestureDetector(
-                    onTap: onTap,
+                    onTap: _onNavigate,
                     child: CircleAvatar(
                       radius: 40, // w-24 / w-28 aproximación
                       backgroundColor: Colors.white,
                       backgroundImage: NetworkImage(
-                        vendor.image.isNotEmpty
-                            ? vendor.image
+                        vendor.url.isNotEmpty
+                            ? vendor.url
                             : "https://placehold.co/400x400/png",
                       ),
                     ),
@@ -135,7 +140,7 @@ class VendorCard extends StatelessWidget {
                   // Título del vendedor
                   Expanded(
                     child: GestureDetector(
-                      onTap: onTap,
+                      onTap: _onNavigate,
                       child: Text(
                         vendor.name,
                         style: const TextStyle(
@@ -149,15 +154,7 @@ class VendorCard extends StatelessWidget {
 
                   // Botón "Ver perfil" (rounded-none btn-primary)
                   ElevatedButton(
-                    onPressed:
-                        onTap ??
-                        () {
-                          Get.to(
-                            () => VendorDetailsScreen(),
-                            arguments: vendor.id,
-                          );
-                          // Misma lógica de navegación del InkWell
-                        },
+                    onPressed: _onNavigate,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).primaryColor,
                       foregroundColor: Colors.white,
