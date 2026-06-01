@@ -36,11 +36,12 @@ class OnboardingScreen extends StatelessWidget {
         }).toList(),
         onDone: () {
           controller.completeOnboarding();
-          Get.offAll(() => const HomeScreen());
+          Get.offAllNamed('/home');
+          // Get.offAll(() => const HomeScreen());
         },
         onSkip: () {
           controller.completeOnboarding();
-          Get.offAll(() => const HomeScreen());
+          Get.offAllNamed('/home');
         },
         showSkipButton: true,
         skip: const Text("Saltar"),
